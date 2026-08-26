@@ -334,6 +334,15 @@ describe('WorkspaceRuntime', () => {
     await expect(workspaces.create({ path: '/w/alpha' })).resolves.toMatchObject({ workspaceId: 'picked' })
     expect(workspaces.list.getSnapshot().items[0]).toMatchObject({ path: '/w/alpha', title: 'alpha' })
     expect(api.callsOf('workspace.create')).toEqual([{ path: '/w/alpha' }])
+    // The just-created workspace is stamped as recent immediately, so a New
+    // Session click right after picking a folder targets it instead of
+    // appearing to do nothing until the baseline lands. The deferred frame
+    // flush must not roll the stamp back.
+    expect(workspaces.list.getSnapshot().recentWorkspaceId).toBe('picked')
+    await vi.waitFor(() => {
+      expect(workspaces.list.getSnapshot().recentWorkspaceId).toBe('picked')
+    })
+    await workspaces.startSession()
     api.onWorkspaceCreate = () => Promise.resolve(err({
       code: 'workspace-invalid-path', message: 'missing', details: { path: '/missing' },
     }))
@@ -360,7 +369,7 @@ describe('WorkspaceRuntime', () => {
     const ctx = new Context()
     const api = new FakeApiClient()
     const workspaces = new WorkspaceRuntime(ctx, api, new SessionRuntime(ctx, api, fakeRemote()))
-    const listing = { path: '/home/u', home: '/home/u', crumbs: [{ name: '/', path: '/', hidden: false }], entries: [{ name: 'p', path: '/home/u/p', hidden: false }], truncated: false }
+    const listing = { path: '/home/u', home: '/home/u', crumbs: [{ name: '/', path: '/', hidden: false }], entries: [{ name: 'p', path: '/home/u/p', hidden: false }], truncated: false, separator: '/' }
     api.onListDirectory = () => Promise.resolve(ok(listing))
     await expect(workspaces.listDirectory()).resolves.toEqual(listing)
     await expect(workspaces.listDirectory('/home/u')).resolves.toEqual(listing)

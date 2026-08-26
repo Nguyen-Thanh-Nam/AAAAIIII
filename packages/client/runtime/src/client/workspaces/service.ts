@@ -217,6 +217,14 @@ export class WorkspaceRuntime implements IWorkspaces {
   async create(input: { path: string }): Promise<WorkspaceView> {
     const result = await this.manager.create(input)
     if (!result.ok) throw new WorkspaceCreateError(result.error)
+    // Make the just-created workspace reachable by New Session immediately.
+    // The baseline that absorbs it into the list arrives later; without this
+    // stamp, the first New Session click after picking a folder finds no
+    // recent workspace and appears to do nothing (a second click works once
+    // the baseline lands).
+    this.list.update(state => {
+      state.recentWorkspaceId = result.value.workspace.workspaceId
+    })
     return result.value.workspace
   }
 
@@ -360,6 +368,11 @@ export class WorkspaceRuntime implements IWorkspaces {
     if (sessions.current !== undefined && workspace.archivedSessionIds.includes(sessions.current)) {
       this.sessions.clear()
     }
+    const projectedRecent = baselinesReady ? recentWorkspace(workspace.items, sessions.byId) : undefined
+    // Keep an optimistic stamp (a workspace created this session, before the
+    // baseline landed) so the first New Session click after picking a folder
+    // targets it instead of appearing to do nothing.
+    const recentWorkspaceId = projectedRecent ?? this.list.getSnapshot().recentWorkspaceId
     this.list.set({
       items: workspace.items,
       archivedSessionIds: workspace.archivedSessionIds,
@@ -367,7 +380,7 @@ export class WorkspaceRuntime implements IWorkspaces {
       phase: workspace.phase,
       error: workspace.error,
       baselinesReady,
-      recentWorkspaceId: baselinesReady ? recentWorkspace(workspace.items, sessions.byId) : undefined,
+      recentWorkspaceId,
     })
   }
 }
