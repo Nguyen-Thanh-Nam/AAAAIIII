@@ -523,6 +523,10 @@ describe('ConversationRoot resident composer', () => {
     expect(selectWorkspace).toHaveBeenCalledWith(wid('second'))
     expect(b.view.queryByText('Selected Folder')).toBeNull()
     expect(b.view.getByText('one')).toBeTruthy()
+    // The swallowed failure is now surfaced: a visible banner carries the
+    // message instead of leaving the screen silent.
+    expect(b.view.getByRole('alert')).toBeTruthy()
+    expect(b.view.getByText(/无法打开工作区：connect failed/)).toBeTruthy()
   })
 
   it('blank session keeps the interactive picker chip (workspace switchable until the first message)', () => {

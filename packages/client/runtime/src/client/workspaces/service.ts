@@ -170,7 +170,7 @@ export class WorkspaceRuntime implements IWorkspaces {
         (reason: unknown) => {
           if (disposed) return
           state = 'waiting'
-          console.warn('initial workspace selection failed:', reason)
+          console.error('initial workspace selection failed:', reason)
         },
       )
     }
@@ -205,7 +205,7 @@ export class WorkspaceRuntime implements IWorkspaces {
     }
     void this.connectWorkspace(target).then(
       (sessionId) => { this.sessions.open(sessionId) },
-      (reason: unknown) => { console.warn('new session failed:', reason) },
+      (reason: unknown) => { console.error('new session failed:', reason) },
     )
   }
 

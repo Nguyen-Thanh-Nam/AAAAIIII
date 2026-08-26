@@ -30,6 +30,7 @@ export function ConversationRoot({
 
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pendingWorkspaceId, setPendingWorkspaceId] = useState<WorkspaceId | undefined>()
+  const [workspaceError, setWorkspaceError] = useState<string | undefined>()
   const pickerAnchor = useRef<HTMLButtonElement>(null)
 
   // Publishes the seat's live height as --dsh-composer-height on the scroll
@@ -113,13 +114,49 @@ export function ConversationRoot({
         onPick: (workspaceId) => {
           setPickerOpen(false)
           setPendingWorkspaceId(workspaceId)
-          void selectWorkspace(workspaceId).catch(() => {
+          setWorkspaceError(undefined)
+          void selectWorkspace(workspaceId).catch((reason: unknown) => {
+            // Surface the failure instead of swallowing it: a silent
+            // session.create failure made picking a folder look like a no-op.
+            const message = reason instanceof Error ? reason.message : String(reason)
+            console.error('Failed to open workspace session:', reason)
+            setWorkspaceError(message)
             setPendingWorkspaceId(current => current === workspaceId ? undefined : current)
           })
         },
         onClose: () => { setPickerOpen(false) },
       })}
       {renderSlot('conversation.hero.agentPreset', {})}
+      {workspaceError === undefined ? null : (
+        <div className={css.workspaceError} role="alert">
+          <span className={css.workspaceErrorIcon} aria-hidden="true">⚠</span>
+          <span className={css.workspaceErrorText}>{t('message.workspaceError', { message: workspaceError })}</span>
+          <button
+            type="button"
+            className={css.workspaceErrorRetry}
+            onClick={() => {
+              setWorkspaceError(undefined)
+              if (pendingWorkspaceId !== undefined) {
+                void selectWorkspace(pendingWorkspaceId).catch((reason: unknown) => {
+                  const message = reason instanceof Error ? reason.message : String(reason)
+                  console.error('Failed to open workspace session:', reason)
+                  setWorkspaceError(message)
+                })
+              }
+            }}
+          >
+            {t('message.workspaceError.retry')}
+          </button>
+          <button
+            type="button"
+            className={css.workspaceErrorDismiss}
+            aria-label={t('message.workspaceError.dismiss')}
+            onClick={() => { setWorkspaceError(undefined) }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   )
 

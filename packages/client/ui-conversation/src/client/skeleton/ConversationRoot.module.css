@@ -347,6 +347,7 @@
 
 .heroWorkspaceRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 2px;
   min-width: 0;
@@ -354,6 +355,58 @@
   /* figma drew px 8; nudged +12 so the chip's folder glyph lines up closer to
      the card's inner controls below. */
   padding-left: 20px;
+}
+
+/* Visible failure banner for a workspace pick that could not open a session:
+   surfaces the swallowed error instead of leaving the screen silent. */
+.workspaceError {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid rgba(220, 60, 60, 0.45);
+  border-radius: 8px;
+  background: rgba(180, 40, 40, 0.14);
+  color: #f2b8b8;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.workspaceErrorIcon {
+  flex: none;
+  font-size: 14px;
+}
+
+.workspaceErrorText {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.workspaceErrorRetry,
+.workspaceErrorDismiss {
+  flex: none;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  background: rgba(220, 60, 60, 0.28);
+  color: #f6d3d3;
+}
+
+.workspaceErrorRetry:hover,
+.workspaceErrorDismiss:hover {
+  background: rgba(220, 60, 60, 0.42);
+  color: #fff;
+}
+
+.workspaceErrorDismiss {
+  padding: 4px 8px;
+  background: transparent;
+  color: #d99;
 }
 
 /* Hero: the composer sits inside the session scroll body; center there so
