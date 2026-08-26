@@ -325,10 +325,10 @@ describe('bash tool', () => {
 
   // Type and required-key violations are rejected by the harness
   // (defineTool validates against the ParameterSchemaSpec — the arg-validation Agent Note) before execute.
+  // `description` is advisory: a call without it is valid (some models omit it).
   it.each([
     [{}, /missing required property "command"/],
     [{ command: 42, description: 'd' }, /"command" must be a string/],
-    [{ command: 'x' }, /missing required property "description"/],
     [{ command: 'x', description: 7 }, /"description" must be a string/],
     [{ command: 'x', description: 'd', timeoutMs: 'soon' }, /"timeoutMs" must be a number/],
     [{ command: 'x', description: 'd', workdir: 7 }, /"workdir" must be a string/],
@@ -352,6 +352,13 @@ describe('bash tool', () => {
     expect(text(result)).toMatch(pattern)
   })
 
+  it('executes a bash call that omits the advisory description', async () => {
+    const ctx = await setup()
+    const result = await call(ctx, 'bash', { command: 'printf ok' })
+    expect(result.isError).toBe(false)
+    expect(text(result)).toContain('ok')
+  })
+
   it('rejects a non-JSON numeric argument before tool-specific validation', async () => {
     const ctx = await setup()
     const result = await call(ctx, 'bash', {
@@ -368,7 +375,8 @@ describe('bash tool', () => {
     const bashSchema = schemas[0]!
     expect(bashSchema.parameters).toMatchObject({
       type: 'object',
-      required: ['command', 'description'],
+      // `description` is advisory (some models omit it); only `command` is required.
+      required: ['command'],
     })
     expect(Object.keys(bashSchema.parameters.properties as Record<string, unknown>))
       .toContain('run_in_background')
@@ -1042,11 +1050,11 @@ describe('tool-owned UI presentation (presentCall / presentResult)', () => {
     })).toBeUndefined()
   })
 
-  it('presentCall validates softly: malformed args (missing required description) return undefined, never throw', async () => {
+  it('presentCall renders a call that omits the advisory description (falls back to the command)', async () => {
     const ctx = await setup()
-    // `defineTool` soft-validates replayed logged args before presentation. Invalid shapes return
-    // undefined for generic UI rendering rather than throwing; `presentCall` accepts `unknown`.
-    expect(ctx.tools.get('bash')?.presentCall?.({ command: 'ls' })).toBeUndefined()
+    // `description` is optional; presentation falls back to the command text.
+    const view = ctx.tools.get('bash')?.presentCall?.({ command: 'ls' })
+    expect(view).toMatchObject({ card: 'terminal', title: 'ls' })
   })
 })
 
