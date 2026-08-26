@@ -1,0 +1,216 @@
+/* About section: branded hero, capability cards, and creator credit. */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 8px 2px 32px;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 28px 20px;
+  border: 1px solid rgb(214 104 29 / 25%);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgb(214 104 29 / 14%) 0%, transparent 60%),
+    var(--dsw-alias-bg-layer-2, #fff);
+}
+
+.avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgb(214 104 29 / 45%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+}
+
+.badge {
+  font-family: var(
+    --ds-font-family-code,
+    'SF Mono',
+    'JetBrains Mono',
+    'Fira Code',
+    Consolas,
+    'Liberation Mono',
+    Menlo,
+    Courier,
+    'PingFang SC',
+    'Microsoft YaHei'
+  );
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d6681d;
+  border: 1px solid rgb(214 104 29 / 40%);
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 34px;
+  line-height: 44px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(100deg, #d6681d 0%, #f0914d 55%, #f9fafb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.intro {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-secondary, #61666b);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 28px;
+  margin-top: 6px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 700;
+  color: #d6681d;
+}
+
+.statLabel {
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary, #81858c);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-secondary, #61666b);
+}
+
+/* Capability cards: a responsive grid of icon + title + body. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--dsw-alias-border-l2, rgb(0 0 0 / 10%));
+  border-radius: 14px;
+  background: var(--dsw-alias-bg-layer-2, #fff);
+  transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+
+.gridItem:hover {
+  border-color: rgb(214 104 29 / 45%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 8%);
+}
+
+.gridIcon {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.gridTitle {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.gridBody {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary, #61666b);
+}
+
+.features {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 8px 16px;
+}
+
+.features li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.features li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 9px;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: #d6681d;
+  transform: rotate(45deg);
+}
+
+.credit {
+  margin: 0;
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.para {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-secondary, #61666b);
+}
+
+.link {
+  font-size: 13px;
+  line-height: 20px;
+  color: #d6681d;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
