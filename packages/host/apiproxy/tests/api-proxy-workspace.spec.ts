@@ -170,6 +170,7 @@ const BROWSE_STUB: DirectoryPickerCapability = {
       crumbs: [{ name: '/', path: '/', hidden: false }],
       entries: [{ name: 'projects', path: `${target}/projects`, hidden: false }],
       truncated: false,
+      separator: '/',
     }
   },
   createDirectory: async (path, name) => {

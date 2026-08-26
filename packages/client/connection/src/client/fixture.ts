@@ -2637,6 +2637,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
             .map(name => ({ name, path: target === '/' ? `/${name}` : `${target}/${name}`, hidden: name.startsWith('.') })),
           // The fixture tree is tiny; no level ever reaches a backend bound.
           truncated: false,
+      separator: '/',
         })
       },
       createDirectory: (request) => {

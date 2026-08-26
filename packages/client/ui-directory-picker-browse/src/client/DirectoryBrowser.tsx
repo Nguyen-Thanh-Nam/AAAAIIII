@@ -109,15 +109,14 @@ function displayCrumbs(listing: DirectoryListing, homeLabel: string): DirectoryE
 }
 
 /**
- * The listing's platform separator, inferred from the home path the host
- * stamped — never from typed text or entry paths, where a backslash is a
- * legal POSIX name character. Still a heuristic at the last step: a POSIX
- * home directory whose own name contains a backslash would misread.
- * TODO: replace with a host-stamped `separator` field on the wire
- * DirectoryListing so the platform fact travels verbatim (the trade-off is
- * recorded in the directory-picker capability seam Agent Note).
+ * The listing's platform separator, stamped by the host — never inferred
+ * from typed text or entry paths, where a backslash is a legal POSIX name
+ * character. A host that predates the stamp falls back to the home-path
+ * heuristic so older backends still work.
  */
 function separatorOf(listing: DirectoryListing): '\\' | '/' {
+  const stamped = (listing as { separator?: string }).separator
+  if (stamped === '\\' || stamped === '/') return stamped
   return listing.home.includes('\\') ? '\\' : '/'
 }
 

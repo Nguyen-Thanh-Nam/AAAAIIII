@@ -30,6 +30,8 @@ export interface DirectoryListing {
   entries: DirectoryEntry[]
   /** True when the backend cut `entries` at its complete-result bound (the name-sorted tail is absent). */
   truncated: boolean
+  /** Path separator of the host platform ('/' or '\\'); clients use it for text drafting. */
+  separator: string
 }
 
 /** Host-level unary methods. */

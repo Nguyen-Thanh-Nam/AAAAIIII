@@ -134,6 +134,7 @@ export class TestWorkspaces implements IWorkspaces {
       ],
       entries: [],
       truncated: false,
+      separator: '/',
     }
   }
 

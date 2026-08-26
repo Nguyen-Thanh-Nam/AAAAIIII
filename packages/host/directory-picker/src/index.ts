@@ -53,6 +53,9 @@ export interface DirectoryListing {
    * the name-sorted tail (hidden rows count toward the bound).
    */
   truncated: boolean
+  /** Path separator of the host platform ('/' or '\\'); clients use it for
+   * text drafting instead of guessing from the home path shape. */
+  separator: string
 }
 
 /**
