@@ -39,6 +39,24 @@ export class WorkspaceCreateError extends Error {
   }
 }
 
+/**
+ * Whether two paths name the same directory. Windows filesystems are
+ * case-insensitive and both separators are accepted, so strict string
+ * equality can miss a match spelled differently (e.g. session `cwd`
+ * "c:\users\x" vs canonical workspace path "C:\Users\X") — the scan then
+ * mints a new session and the pick appears to do nothing. Comparison is
+ * case/separator-insensitive when either path is a Windows-style path
+ * (drive-letter prefix), which is when the ambiguity can exist; POSIX paths
+ * stay strict.
+ */
+export function samePath(a: string | undefined, b: string): boolean {
+  if (a === b) return true
+  if (a === undefined || b === undefined) return false
+  const windows = /^[a-zA-Z]:[\\/]/.test(a) || /^[a-zA-Z]:[\\/]/.test(b)
+  if (!windows) return false
+  return a.replaceAll('\\', '/').toLowerCase() === b.replaceAll('\\', '/').toLowerCase()
+}
+
 /** Structured browse failure so the directory browser can branch on Host business codes. */
 export class DirectoryBrowseError extends Error {
   constructor(readonly rpcError: RpcError) {
@@ -105,7 +123,7 @@ export class WorkspaceRuntime implements IWorkspaces {
     const sessions = this.sessions.list.getSnapshot()
     for (const id of sessions.ids) {
       const summary = sessions.byId[id]
-      if (summary !== undefined && summary.blank && summary.cwd === workspace.path
+      if (summary !== undefined && summary.blank && samePath(summary.cwd, workspace.path)
         && workspace.sessionIds.includes(summary.id)
         && !archived.includes(summary.id)) return summary.id
     }

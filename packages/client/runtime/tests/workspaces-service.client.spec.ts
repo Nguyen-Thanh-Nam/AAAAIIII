@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { SessionId, WorkspaceId, WorkspaceView } from '@deepseek-ai/dsh-api-remotes/client'
 import { SessionRuntime } from '../src/client/sessions/service.ts'
 import { WorkspaceManager } from '../src/client/workspaces/manager.ts'
-import { DirectoryBrowseError, WorkspaceCreateError, WorkspaceRuntime } from '../src/client/workspaces/service.ts'
+import { DirectoryBrowseError, WorkspaceCreateError, WorkspaceRuntime, samePath } from '../src/client/workspaces/service.ts'
 import { FakeApiClient, deferred, err, fakeRemote, ok } from './fake-api.client.ts'
 
 const sid = (id: string): SessionId => id as SessionId
@@ -291,6 +291,34 @@ describe('WorkspaceRuntime', () => {
     await session.prompt([{ type: 'text', text: 'hi' }], 'queue')
     await Promise.resolve()
     // Failure leaves blank intact, so the same session is still the reuse hit.
+    await expect(workspaces.connectWorkspace(wid('alpha'))).resolves.toBe('s-blank')
+    expect(api.callsOf('session.create')).toEqual([])
+  })
+
+  it('reuses the member blank session when Windows path spelling differs in case/separators', async () => {
+    // The workspace path arrives canonicalized by the host (mixed case,
+    // backslashes); the session cwd is spelled differently (lowercase,
+    // forward slashes) — the exact mismatch that made picking "do nothing"
+    // on Windows. The comparison is case/separator-insensitive for
+    // Windows-style (drive-letter) paths, exercised directly here.
+    expect(samePath('C:\\Users\\Harinder\\proj', 'c:/users/harinder/proj')).toBe(true)
+    expect(samePath('C:\\Users\\Harinder\\proj', 'c:/users/harinder/other')).toBe(false)
+    expect(samePath('/w/alpha', '/w/alpha')).toBe(true)
+    expect(samePath('/w/alpha', '/w/beta')).toBe(false)
+    const ctx = new Context()
+    const api = new FakeApiClient()
+    const sessions = new SessionRuntime(ctx, api, fakeRemote())
+    const workspaces = new WorkspaceRuntime(ctx, api, sessions)
+    const canonical = 'C:\\Users\\Harinder\\proj'
+    api.onWorkspaceList = () => Promise.resolve(ok({
+      items: [{ ...workspace('alpha', [sid('s-blank')]), path: canonical }] as never[],
+    }))
+    api.onList = () => Promise.resolve(ok({
+      items: [{ sessionId: sid('s-blank'), updatedAt: 2, running: false, blank: true, cwd: 'c:/users/harinder/proj' }] as never[],
+    }))
+    await Promise.all([workspaces.refresh(), sessions.refresh()])
+    await Promise.resolve()
+    // Same directory, different spelling: reuse hits, no create RPC.
     await expect(workspaces.connectWorkspace(wid('alpha'))).resolves.toBe('s-blank')
     expect(api.callsOf('session.create')).toEqual([])
   })
