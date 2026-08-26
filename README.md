@@ -6,9 +6,14 @@
 
 **Heaven for Hackers** — the professional security testing workspace.
 
-A dark-first agent harness for authorized penetration tests, bug bounty research,
-security labs, and CTF engagements — built on a plugin architecture where every
-layer is replaceable from configuration.
+An open-source, dark-first AI agent harness for authorized penetration tests, bug bounty
+research, security labs, and CTF engagements. Built on a plugin architecture where every
+layer — model adapters, tools, sessions, settings, and credentials — is replaceable from
+configuration.
+
+**Works with any AI model API.** Bring your own key from OpenAI, Anthropic, DeepSeek,
+Google, Mistral, Groq, OpenRouter, Azure OpenAI, or any OpenAI-compatible gateway — one
+click auto-discovers your models and you're running.
 
 </div>
 
@@ -16,15 +21,15 @@ layer is replaceable from configuration.
 
 ## Screenshots
 
-| Workspace | Settings · About | Provider cards |
-|:---:|:---:|:---:|
-| <img src="docs/images/screenshot-hero.png" alt="Pentest Harness workspace" width="320" /> | <img src="docs/images/screenshot-about.png" alt="Pentest Harness About" width="320" /> | <img src="docs/images/screenshot-models.png" alt="Pentest Harness provider cards" width="320" /> |
+| Workspace | Provider cards |
+|:---:|:---:|
+| <img src="docs/images/screenshot-hero.png" alt="Pentest Harness workspace" width="420" /> | <img src="docs/images/screenshot-models.png" alt="Pentest Harness provider cards" width="420" /> |
 
 ---
 
 ## Features
 
-- **Multi-provider LLM engine** — OpenAI-compatible Chat Completions & Responses, Anthropic Messages, and any custom gateway with one-click model auto-discovery
+- **Multi-provider LLM engine** — OpenAI Chat Completions & Responses, Anthropic Messages, DeepSeek, and any custom OpenAI-compatible gateway with one-click model auto-discovery
 - **Full agent toolset** — shell, filesystem, web research, skills, goals, subagents, background jobs, and workflow control
 - **Pentest Mode** — a professional offensive-security operating standard for authorized engagements
 - **Provider cards** — live connection testing, enabled/disabled toggles, per-model context badges
@@ -64,11 +69,11 @@ pnpm dsh web --port 3000
 
 ---
 
-## First run
+## First run — connect any AI model
 
 1. Open **Settings → Models**.
 2. Click **Add a custom provider** (or **Edit** an existing one).
-3. Paste your base URL — the provider ID and display name auto-fill.
+3. Paste your API base URL — the provider ID and display name auto-fill.
 4. Enter your API key (stored in your local credential store, never in settings).
 5. Models auto-discover from the endpoint — click one to add it, or add by hand.
 6. Pick a model in the composer and start your engagement.

@@ -77,10 +77,6 @@ function generalEntry(slots: SlotRegistry) {
   return slots.entries('settings.section').find(e => e.component === GeneralSection)
 }
 
-function aboutEntry(slots: SlotRegistry) {
-  return slots.entries('settings.section').find(e => e.options.id === 'about')
-}
-
 describe('ui-settings-general apply', () => {
   it('declares the services it uses', () => {
     expect(inject).toEqual(['slots', 'locale', 'connection', 'settingsScope'])
@@ -97,9 +93,6 @@ describe('ui-settings-general apply', () => {
     expect(entry.options).toMatchObject({ id: 'general', order: 0 })
     // The nav label is a locale-following thunk; owners resolve at read time.
     expect(resolveSlotLabel(entry.options.label)).toBe('通用设置')
-    const about = aboutEntry(before.slots)!
-    expect(about.options).toMatchObject({ id: 'about', order: 100 })
-    expect(resolveSlotLabel(about.options.label)).toBe('关于')
     expect(before.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
     expect(before.slots.entries('settings.general.item')).toEqual([])
     // The onboarding hole stays declared for feature-owned steps; this plugin
@@ -121,11 +114,7 @@ describe('ui-settings-general apply', () => {
     for (const [name, component] of SEATS) {
       expect(after.slots.entries(name)[0]!.component).toBe(component)
       // The self-inflicted ledger notifications hit the duplicate guard.
-      if (name === 'settings.section') {
-        expect(after.slots.entries(name)).toHaveLength(2)
-      } else {
-        expect(after.slots.entries(name)).toHaveLength(1)
-      }
+      expect(after.slots.entries(name)).toHaveLength(1)
     }
     await vi.waitFor(() => {
       expect(after.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
@@ -157,12 +146,11 @@ describe('ui-settings-general apply', () => {
     // subscription), not re-registration.
     SEATS.forEach(([name], i) => {
       expect(b.slots.getVersion(name)).toBe(zhVersions[i]!)
-      expect(b.slots.entries(name)).toHaveLength(name === 'settings.section' ? 2 : 1)
+      expect(b.slots.entries(name)).toHaveLength(1)
     })
     expect(resolveSlotLabel(generalEntry(b.slots)!.options.label)).toBe('General')
     b.locale.setLocale('zh')
     expect(resolveSlotLabel(generalEntry(b.slots)!.options.label)).toBe('通用设置')
-    expect(resolveSlotLabel(aboutEntry(b.slots)!.options.label)).toBe('关于')
   })
 
   it('reads availability from the shared mirror and follows its reconnect refresh', async () => {
