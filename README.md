@@ -43,7 +43,9 @@ click auto-discovers your models and you're running.
 
 ## Demo
 
-https://github.com/S1N6H/pentest-harness/raw/main/docs/media/pentest-harness-demo.mp4
+<img src="docs/media/pentest-harness-demo.gif" alt="Pentest Harness demo" width="100%" />
+
+Download the full video
 
 ---
 
