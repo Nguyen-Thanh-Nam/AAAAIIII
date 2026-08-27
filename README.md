@@ -41,6 +41,15 @@ click auto-discovers your models and you're running.
 
 ---
 
+## Demo
+
+<video controls width="100%">
+  <source src="docs/media/pentest-harness-demo.mp4" type="video/mp4" />
+  Your browser does not support the video tag — <a href="docs/media/pentest-harness-demo.mp4">download the demo</a>.
+</video>
+
+---
+
 ## Quick start
 
 ```sh
