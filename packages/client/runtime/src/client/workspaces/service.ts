@@ -1,10 +1,10 @@
 /** WorkspaceRuntime projects the Workspace object manager for UI consumers. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@pentest-harness/cordis'
 import type {
   DirectoryListing, IApiClient, RpcError,
   SessionId, WorkspaceId, WorkspaceView,
-} from '@deepseek-ai/dsh-api-remotes/client'
+} from '@pentest-harness/dsh-api-remotes/client'
 import type { SnapshotStore } from '../contract/store.ts'
 import { createSnapshotStore } from '../contract/store.ts'
 import type { SessionsPort, SessionsPortList } from '../contract/sessions-port.ts'
@@ -222,7 +222,7 @@ export class WorkspaceRuntime implements IWorkspaces {
     // stamp, the first New Session click after picking a folder finds no
     // recent workspace and appears to do nothing (a second click works once
     // the baseline lands).
-    this.list.update(state => {
+    this.list.update((state) => {
       state.recentWorkspaceId = result.value.workspace.workspaceId
     })
     return result.value.workspace

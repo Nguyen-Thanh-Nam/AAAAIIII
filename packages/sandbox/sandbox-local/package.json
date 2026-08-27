@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-sandbox-local",
+  "name": "@pentest-harness/dsh-sandbox-local",
   "description": "Local process-sandbox backends for the DeepSeek Harness sandbox seam: bwrap, the npm-distributed landlock-run launcher, macOS Seatbelt, or the Windows ACL restricted-token runner — functionally probed, fail-closed",
   "version": "0.1.1-rc.2",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/S1N6H/pentest-harness.git",
     "directory": "packages/sandbox/sandbox-local"
   },
   "type": "module",
@@ -32,22 +32,22 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-invariants": "workspace:^",
-    "@deepseek-ai/dsh-llm": "workspace:^",
-    "@deepseek-ai/dsh-sandbox": "workspace:^",
-    "@deepseek-ai/dsh-session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@pentest-harness/dsh-invariants": "workspace:^",
+    "@pentest-harness/dsh-llm": "workspace:^",
+    "@pentest-harness/dsh-sandbox": "workspace:^",
+    "@pentest-harness/dsh-session": "workspace:^",
+    "@pentest-harness/cordis": "workspace:^"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-sandbox-windows-acl": "workspace:^",
-    "@deepseek-ai/node-addon-landlock-run": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^"
+    "@pentest-harness/dsh-sandbox-windows-acl": "workspace:^",
+    "@pentest-harness/node-addon-landlock-run": "workspace:^",
+    "@pentest-harness/schemastery": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-invariants": "workspace:^",
-    "@deepseek-ai/dsh-llm": "workspace:^",
-    "@deepseek-ai/dsh-sandbox": "workspace:^",
-    "@deepseek-ai/dsh-session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@pentest-harness/dsh-invariants": "workspace:^",
+    "@pentest-harness/dsh-llm": "workspace:^",
+    "@pentest-harness/dsh-sandbox": "workspace:^",
+    "@pentest-harness/dsh-session": "workspace:^",
+    "@pentest-harness/cordis": "workspace:^"
   }
 }

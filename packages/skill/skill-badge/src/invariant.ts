@@ -1,13 +1,13 @@
 /**
- * Package-owned invariant companion for `@deepseek-ai/dsh-skill-badge`.
- * @module @deepseek-ai/dsh-skill-badge/invariant
+ * Package-owned invariant companion for `@pentest-harness/dsh-skill-badge`.
+ * @module @pentest-harness/dsh-skill-badge/invariant
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
+import type { Context } from '@pentest-harness/cordis'
+import type { InvariantInstaller } from '@pentest-harness/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-skill-badge'
+const PACKAGE_NAME = '@pentest-harness/dsh-skill-badge'
 
 /** Cordis companion plugin name. */
 export const name = 'skill-badge-invariant'

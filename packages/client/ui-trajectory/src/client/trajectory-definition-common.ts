@@ -1,4 +1,4 @@
-import type { ConversationNodeContext } from '@deepseek-ai/dsh-client-runtime/client'
+import type { ConversationNodeContext } from '@pentest-harness/dsh-client-runtime/client'
 import type {
   TrajectoryContribution, TrajectoryConversationViewNode,
 } from './trajectory-contract.ts'

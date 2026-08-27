@@ -1,15 +1,15 @@
 /** Covers fail-closed per-call classification and model-schema isolation. */
 
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { CallId } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import { Context } from '@pentest-harness/cordis'
+import { CallId } from '@pentest-harness/dsh-llm'
+import SystemPrompt from '@pentest-harness/dsh-system-prompt'
 import ToolRuntime, {
   defineContentToolFixture,
   type ToolDefinition,
   type ToolExecutionInput,
   type ToolExecutionMode,
-} from '@deepseek-ai/dsh-tools'
+} from '@pentest-harness/dsh-tools'
 
 const testToolSignal = new AbortController().signal
 

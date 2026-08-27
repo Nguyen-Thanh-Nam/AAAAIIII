@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-session-title
+# @pentest-harness/dsh-session-title
 
 English | [中文](README.zh.md)
 

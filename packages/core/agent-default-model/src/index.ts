@@ -1,16 +1,16 @@
 /**
  * Default model selection for an Agent without a session-specific selection.
  *
- * @module @deepseek-ai/dsh-agent-default-model
+ * @module @pentest-harness/dsh-agent-default-model
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type { ModelSelection } from '@deepseek-ai/dsh-agent'
-import { ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import { installSettingsSection, settingsNamespace } from '@deepseek-ai/dsh-settings'
+import { Context, Service } from '@pentest-harness/cordis'
+import z from '@pentest-harness/schemastery'
+import type { ModelSelection } from '@pentest-harness/dsh-agent'
+import { ReasoningEffortId } from '@pentest-harness/dsh-llm'
+import { installSettingsSection, settingsNamespace } from '@pentest-harness/dsh-settings'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@pentest-harness/cordis' {
   interface Context {
     /** Default model selection for Agents created without an explicit model. */
     agentDefaultModel: AgentDefaultModelConfig

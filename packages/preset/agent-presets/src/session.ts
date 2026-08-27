@@ -10,12 +10,12 @@
  * preset decides the tool schemas and prompt sections the model sees.
  *
  * Reconstruction reads {@link resolveSessionPreset}, never the header alone.
- * @module @deepseek-ai/dsh-agent-presets/session
+ * @module @pentest-harness/dsh-agent-presets/session
  */
 
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
+import type { SessionEvent, SessionHeader } from '@pentest-harness/dsh-session'
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@pentest-harness/dsh-session/types' {
   interface SessionEventMap {
     /**
      * The session's agent preset was chosen after creation, while the session

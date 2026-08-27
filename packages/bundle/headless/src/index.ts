@@ -1,25 +1,25 @@
 /**
- * @deepseek-ai/dsh-headless — one-shot direct Agent driver. The bundle patch
+ * @pentest-harness/dsh-headless — one-shot direct Agent driver. The bundle patch
  * rides over dsh-base without Host, HTTP, or browser plugins; this runner
  * creates one Agent through the core registry, drives the task to quiescence,
  * flushes its Session, prints the final assistant text, and exits.
  *
- * @module @deepseek-ai/dsh-headless
+ * @module @pentest-harness/dsh-headless
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { installModelSelection } from '@deepseek-ai/dsh-agent'
-import type { ModelSelectionRef } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-default-model'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type { Context } from '@pentest-harness/cordis'
+import z from '@pentest-harness/schemastery'
+import { installModelSelection } from '@pentest-harness/dsh-agent'
+import type { ModelSelectionRef } from '@pentest-harness/dsh-agent'
+import type {} from '@pentest-harness/dsh-agent-default-model'
+import { createUserMessage } from '@pentest-harness/dsh-llm'
+import { SessionId } from '@pentest-harness/dsh-session'
+import type { SessionEvent } from '@pentest-harness/dsh-session'
 // Empty type imports carry the loader Context merge for the settlement await
 // and the cmdline Context merge for the appExit host value.
-import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-cmdline'
+import type {} from '@pentest-harness/cordis-plugin-loader'
+import type {} from '@pentest-harness/dsh-cmdline'
 
 /** Stable Cordis plugin name. */
 export const name = 'headless-runner'
@@ -107,7 +107,7 @@ async function run(ctx: Context, task: string, io: HeadlessIo): Promise<void> {
   // This bundle composes no preset roster, so the model-facing rows sit in the
   // host plane and the agent reads them from the global layer. A deployment
   // that DOES configure one has to join it here first
-  // (@deepseek-ai/dsh-agent-presets README, "Composing a child agent").
+  // (@pentest-harness/dsh-agent-presets README, "Composing a child agent").
   const { agent } = await agents.create({
     sessionId: SessionId(`session-${randomUUID()}`),
     meta: { cwd: process.cwd() },

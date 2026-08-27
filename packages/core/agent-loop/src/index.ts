@@ -2,13 +2,13 @@
  * Concrete agent-loop plugin: creates scoped ReactLoopAgents, publishes them
  * through the agent/session registries, and owns their ordered teardown.
  *
- * @module @deepseek-ai/dsh-agent-loop
+ * @module @pentest-harness/dsh-agent-loop
  */
 
-import { Context, FiberState, Service } from '@deepseek-ai/cordis'
+import { Context, FiberState, Service } from '@pentest-harness/cordis'
 import { randomUUID } from 'node:crypto'
-import z from '@deepseek-ai/schemastery'
-import { emitAgentEvent } from '@deepseek-ai/dsh-agent'
+import z from '@pentest-harness/schemastery'
+import { emitAgentEvent } from '@pentest-harness/dsh-agent'
 import type {
   Agent,
   AgentFactory,
@@ -18,14 +18,14 @@ import type {
   CreateAgentOptions,
   ResumeAgentOptions,
   SessionStartSource,
-} from '@deepseek-ai/dsh-agent'
-import { errorChain } from '@deepseek-ai/dsh-llm'
-import { installSettingsSection, settingsNamespace } from '@deepseek-ai/dsh-settings'
-import { SessionId, SessionPreparation } from '@deepseek-ai/dsh-session'
-import type { Session, SessionHeader } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import type {} from '@deepseek-ai/dsh-tools'
-import type { SessionPersistence } from '@deepseek-ai/dsh-session-persistence'
+} from '@pentest-harness/dsh-agent'
+import { errorChain } from '@pentest-harness/dsh-llm'
+import { installSettingsSection, settingsNamespace } from '@pentest-harness/dsh-settings'
+import { SessionId, SessionPreparation } from '@pentest-harness/dsh-session'
+import type { Session, SessionHeader } from '@pentest-harness/dsh-session'
+import type {} from '@pentest-harness/dsh-system-prompt'
+import type {} from '@pentest-harness/dsh-tools'
+import type { SessionPersistence } from '@pentest-harness/dsh-session-persistence'
 import { ReactLoopAgent } from './agent.ts'
 import { DEFAULT_MAX_PARALLEL_TOOL_CALLS } from './constants.ts'
 
@@ -157,7 +157,7 @@ interface PreparedAgent {
   dispose(): Promise<void>
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@pentest-harness/cordis' {
   interface Context {
     agentLoop: AgentLoop
     /**

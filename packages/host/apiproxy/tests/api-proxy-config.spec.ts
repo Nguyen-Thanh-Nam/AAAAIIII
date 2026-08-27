@@ -6,18 +6,18 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionStore from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import UserQuestionService from '@deepseek-ai/dsh-user-questions'
-import LlmRuntime, { LlmAdapter } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmModelInfo, LlmProviderInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { SettingsProvider, settingsNamespace } from '@deepseek-ai/dsh-settings'
-import type { SettingsNamespace } from '@deepseek-ai/dsh-settings'
-import { CredentialProvider } from '@deepseek-ai/dsh-credentials'
+import { Context } from '@pentest-harness/cordis'
+import z from '@pentest-harness/schemastery'
+import AgentRegistry from '@pentest-harness/dsh-agent'
+import SessionStore from '@pentest-harness/dsh-session'
+import SystemPrompt from '@pentest-harness/dsh-system-prompt'
+import ToolRuntime from '@pentest-harness/dsh-tools'
+import UserQuestionService from '@pentest-harness/dsh-user-questions'
+import LlmRuntime, { LlmAdapter } from '@pentest-harness/dsh-llm'
+import type { GenerateOptions, LlmModelInfo, LlmProviderInfo, StreamChunk } from '@pentest-harness/dsh-llm'
+import { SettingsProvider, settingsNamespace } from '@pentest-harness/dsh-settings'
+import type { SettingsNamespace } from '@pentest-harness/dsh-settings'
+import { CredentialProvider } from '@pentest-harness/dsh-credentials'
 import type {
   CredentialInfo,
   CredentialKey,
@@ -26,11 +26,11 @@ import type {
   CredentialRecordInfo,
   CredentialRef,
   ResolvedCredential,
-} from '@deepseek-ai/dsh-credentials'
+} from '@pentest-harness/dsh-credentials'
 import type { HostFrame } from '../src/api/index.ts'
 import type { RpcRequest, RpcResponse } from '../src/api/rpc.ts'
 import { RpcId } from '../src/api/rpc.ts'
-import { AGENT_DEFAULT_MODEL_SETTINGS_NAMESPACE } from '@deepseek-ai/dsh-agent-default-model'
+import { AGENT_DEFAULT_MODEL_SETTINGS_NAMESPACE } from '@pentest-harness/dsh-agent-default-model'
 import { createApiProxy } from '../src/api-proxy.ts'
 
 const DEFAULTS = { defaultModelSelection: () => ({ provider: 'p', model: 'm' }), cwd: '/tmp' }

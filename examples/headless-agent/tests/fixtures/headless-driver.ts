@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /** Snapshot-only Loader driver: stream one fixture turn as canonical JSONL. */
 
-import type { Context } from '@deepseek-ai/cordis'
-import { boot, installFailLoud, loadEnv, resolveConfigPath } from '@deepseek-ai/dsh-app-boot'
-import { runFixtureTurn } from '@deepseek-ai/dsh-loader-smoke'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type { Context } from '@pentest-harness/cordis'
+import { boot, installFailLoud, loadEnv, resolveConfigPath } from '@pentest-harness/dsh-app-boot'
+import { runFixtureTurn } from '@pentest-harness/dsh-loader-smoke'
+import type { SessionEvent } from '@pentest-harness/dsh-session'
 
 const NAME = 'headless-test-driver'
 const [configPath, ...taskParts] = process.argv.slice(2)

@@ -1,6 +1,6 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@pentest-harness/cordis'
 import { describe, expect, it } from 'vitest'
-import InvariantService from '@deepseek-ai/dsh-invariants'
+import InvariantService from '@pentest-harness/dsh-invariants'
 import * as FileReferenceLocalInvariant from '../src/invariant.ts'
 
 describe('invariant companion', () => {

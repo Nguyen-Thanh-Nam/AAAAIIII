@@ -8,10 +8,10 @@
  * can reach). Consumers switch on `capability().kind`; the union is
  * merge-extensible, and the documented default for an unknown kind is to
  * hide the picking affordance rather than fail.
- * @module @deepseek-ai/dsh-host-directory-picker
+ * @module @pentest-harness/dsh-host-directory-picker
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@pentest-harness/cordis'
 
 /** The native interaction: one OS directory chooser on the host display. */
 export interface DirectoryPickerNativeCapability {
@@ -118,7 +118,7 @@ export class DirectoryPickerError extends Error {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@pentest-harness/cordis' {
   interface Context {
     directoryPicker: DirectoryPicker
   }

@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-host-directory-picker-auto
+# @pentest-harness/dsh-host-directory-picker-auto
 
 [English](README.md) | 中文
 

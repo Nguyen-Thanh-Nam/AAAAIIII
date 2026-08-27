@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-sdk-jsonrpc-server
+# @pentest-harness/dsh-sdk-jsonrpc-server
 
 [English](README.md) | 中文
 

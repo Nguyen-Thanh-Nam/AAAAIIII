@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-settings
+# @pentest-harness/dsh-settings
 
 [English](README.md) | 中文
 

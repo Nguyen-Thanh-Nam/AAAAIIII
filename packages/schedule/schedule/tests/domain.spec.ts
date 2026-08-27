@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type { SessionEvent } from '@pentest-harness/dsh-session'
 import {
   ScheduleId,
   ScheduleInputError,

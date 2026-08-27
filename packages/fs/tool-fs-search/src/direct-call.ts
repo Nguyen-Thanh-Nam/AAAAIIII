@@ -1,7 +1,7 @@
 /** Shared top-level-call post-policy selection for search result spill. @module dsh-tool-fs-search/direct-call */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { JsonValue, PostToolDecision, ToolDefinition, ToolExecution, ToolExecutionResult } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@pentest-harness/cordis'
+import type { JsonValue, PostToolDecision, ToolDefinition, ToolExecution, ToolExecutionResult } from '@pentest-harness/dsh-tools'
 
 /**
  * Return the accepted canonical value only when this tool still owns a direct

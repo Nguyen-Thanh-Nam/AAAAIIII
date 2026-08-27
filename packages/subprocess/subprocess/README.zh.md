@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-subprocess
+# @pentest-harness/dsh-subprocess
 
 [English](README.md) | 中文
 

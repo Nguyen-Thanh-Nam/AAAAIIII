@@ -1,13 +1,13 @@
 /**
- * Package-owned invariant companion for `@deepseek-ai/dsh-code-runtime`.
- * @module @deepseek-ai/dsh-code-runtime/invariant
+ * Package-owned invariant companion for `@pentest-harness/dsh-code-runtime`.
+ * @module @pentest-harness/dsh-code-runtime/invariant
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
+import type { Context } from '@pentest-harness/cordis'
+import type { InvariantInstaller } from '@pentest-harness/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-code-runtime'
+const PACKAGE_NAME = '@pentest-harness/dsh-code-runtime'
 
 /** Cordis companion plugin name. */
 export const name = 'code-runtime-invariant'

@@ -1,6 +1,6 @@
-import type { ObservableSnapshot, SessionId } from '@deepseek-ai/dsh-client-runtime/client'
-import { Button, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import type { ObservableSnapshot, SessionId } from '@pentest-harness/dsh-client-runtime/client'
+import { Button, Modal } from '@pentest-harness/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@pentest-harness/dsh-client-ui-slots'
 import type { SessionLogDownloadState } from './controller.ts'
 import { NS } from './locales.ts'
 

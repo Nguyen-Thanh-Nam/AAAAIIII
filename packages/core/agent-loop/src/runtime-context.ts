@@ -1,13 +1,13 @@
 /**
  * Durable projection state for dynamic runtime context.
- * @module @deepseek-ai/dsh-agent-loop/runtime-context
+ * @module @pentest-harness/dsh-agent-loop/runtime-context
  */
 
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextSnapshotSection } from '@deepseek-ai/dsh-llm'
-import type { Session, UserMessage } from '@deepseek-ai/dsh-session'
-import { isReplacementSurfaceEvent } from '@deepseek-ai/dsh-session'
-import type { Context } from '@deepseek-ai/cordis'
+import { createUserMessage } from '@pentest-harness/dsh-llm'
+import type { ContextSnapshotSection } from '@pentest-harness/dsh-llm'
+import type { Session, UserMessage } from '@pentest-harness/dsh-session'
+import { isReplacementSurfaceEvent } from '@pentest-harness/dsh-session'
+import type { Context } from '@pentest-harness/cordis'
 
 const SOURCE = '@pentest-harness/system-prompt'
 const CLEARED = 'Current runtime context: none. Earlier runtime-context snapshots no longer apply.'

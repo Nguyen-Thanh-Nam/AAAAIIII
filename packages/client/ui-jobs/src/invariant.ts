@@ -1,13 +1,13 @@
 /**
- * Package-owned invariant companion for `@deepseek-ai/dsh-client-ui-jobs`.
- * @module @deepseek-ai/dsh-client-ui-jobs/invariant
+ * Package-owned invariant companion for `@pentest-harness/dsh-client-ui-jobs`.
+ * @module @pentest-harness/dsh-client-ui-jobs/invariant
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
+import type { Context } from '@pentest-harness/cordis'
+import type { InvariantInstaller } from '@pentest-harness/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-client-ui-jobs'
+const PACKAGE_NAME = '@pentest-harness/dsh-client-ui-jobs'
 
 /** Cordis companion plugin name. */
 export const name = 'client-ui-jobs-invariant'

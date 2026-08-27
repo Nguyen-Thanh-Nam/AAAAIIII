@@ -1,13 +1,13 @@
 /**
- * Package-owned invariant companion for `@deepseek-ai/dsh-client-ui-message-feedback`.
- * @module @deepseek-ai/dsh-client-ui-message-feedback/invariant
+ * Package-owned invariant companion for `@pentest-harness/dsh-client-ui-message-feedback`.
+ * @module @pentest-harness/dsh-client-ui-message-feedback/invariant
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
+import type { Context } from '@pentest-harness/cordis'
+import type { InvariantInstaller } from '@pentest-harness/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-client-ui-message-feedback'
+const PACKAGE_NAME = '@pentest-harness/dsh-client-ui-message-feedback'
 
 /** Cordis companion plugin name. */
 export const name = 'client-ui-feedback-invariant'

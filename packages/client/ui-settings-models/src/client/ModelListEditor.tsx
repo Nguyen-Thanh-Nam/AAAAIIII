@@ -16,8 +16,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { DiscoveredModelView, IApiClient } from '@deepseek-ai/dsh-api-remotes/client'
-import { Button, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { DiscoveredModelView, IApiClient } from '@pentest-harness/dsh-api-remotes/client'
+import { Button, Modal } from '@pentest-harness/dsh-client-ui-primitives'
 import { formatCapacity, parseCapacity } from './DeepSeekModelsEditor.tsx'
 import type { DeepSeekModelDraft } from './DeepSeekModelsEditor.tsx'
 import { messageOf } from './store.ts'
@@ -496,7 +496,7 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
             <div className={styles['autoAvailable']}>
               <span className={styles['autoAvailableLabel']}>{t('autoAvailable')}</span>
               <div className={styles['autoAvailableList']}>
-                {available.map(candidate => {
+                {available.map((candidate) => {
                   const added = models.some(model => textOf(model, 'id') === candidate.id)
                   return (
                     <button

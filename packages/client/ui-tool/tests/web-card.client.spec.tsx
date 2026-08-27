@@ -12,24 +12,24 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import {
   createSnapshotStore, EMPTY_CONVERSATION_VIEWS,
-} from '@deepseek-ai/dsh-client-runtime/client'
+} from '@pentest-harness/dsh-client-runtime/client'
 import type {
   ConversationSnapshot, RunningToolCall, SessionId, SessionListState, ToolResultNode, WorkspaceListState,
-} from '@deepseek-ai/dsh-client-runtime/client'
-import type { ToolResultView } from '@deepseek-ai/dsh-api-remotes/client'
-import { bindSnapshotSelector } from '@deepseek-ai/dsh-client-test-runtime'
-import type { SelectionTarget } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { ToolCallOwnerProps } from '@deepseek-ai/dsh-client-ui-tool/client'
-import { IconGlobeOutline14 } from '@deepseek-ai/dsh-client-ui-primitives'
+} from '@pentest-harness/dsh-client-runtime/client'
+import type { ToolResultView } from '@pentest-harness/dsh-api-remotes/client'
+import { bindSnapshotSelector } from '@pentest-harness/dsh-client-test-runtime'
+import type { SelectionTarget } from '@pentest-harness/dsh-client-ui-conversation/client'
+import type { ToolCallOwnerProps } from '@pentest-harness/dsh-client-ui-tool/client'
+import { IconGlobeOutline14 } from '@pentest-harness/dsh-client-ui-primitives'
 import { webCardModel } from '../src/client/tool/models/web-card-model.ts'
-import { createChatStore } from '@deepseek-ai/dsh-client-ui-conversation/src/client/stores.ts'
+import { createChatStore } from '@pentest-harness/dsh-client-ui-conversation/src/client/stores.ts'
 import { GenericToolCard } from '../src/client/tool/toolviews/GenericToolCard.tsx'
-import { DetailsPanel } from '@deepseek-ai/dsh-client-ui-conversation/src/client/skeleton/DetailsPanel.tsx'
+import { DetailsPanel } from '@pentest-harness/dsh-client-ui-conversation/src/client/skeleton/DetailsPanel.tsx'
 import { WebRow, webToolview } from '../src/client/tool/toolviews/web-row.tsx'
 import { renderToolDetails, SessionProviderStub, toolChatSnapshot } from './tool-details-render.client.tsx'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import { zh } from '@deepseek-ai/dsh-client-ui-conversation/src/client/locales.ts'
+import { makeTranslate } from '@pentest-harness/dsh-client-test-runtime'
+import { zh as commonZh } from '@pentest-harness/dsh-client-locale/src/locales/zh.ts'
+import { zh } from '@pentest-harness/dsh-client-ui-conversation/src/client/locales.ts'
 
 afterEach(cleanup)
 
@@ -300,7 +300,7 @@ describe('web toolview registration', () => {
           return () => {}
         },
       },
-    } as unknown as import('@deepseek-ai/cordis').Context
+    } as unknown as import('@pentest-harness/cordis').Context
     webToolview.apply(ctx)
     expect(registered.map(r => r.key)).toEqual(['web_search', 'web_fetch'])
     // Both keys claim the conversation locale seat ToolRow's body copy needs.

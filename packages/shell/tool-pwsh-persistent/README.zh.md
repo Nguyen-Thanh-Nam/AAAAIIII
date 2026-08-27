@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-tool-pwsh-persistent
+# @pentest-harness/dsh-tool-pwsh-persistent
 
 [English](README.md) | 中文
 

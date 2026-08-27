@@ -9,12 +9,12 @@
 import { useSyncExternalStore } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import type { MessageId } from '@deepseek-ai/dsh-client-connection/client'
+import { makeTranslate } from '@pentest-harness/dsh-client-test-runtime'
+import { zh as commonZh } from '@pentest-harness/dsh-client-locale/src/locales/zh.ts'
+import type { MessageId } from '@pentest-harness/dsh-client-connection/client'
 import type {
   MessageFeedbackItem, MessageFeedbackRating, MessageFeedbackVersion,
-} from '@deepseek-ai/dsh-message-feedback/types'
+} from '@pentest-harness/dsh-message-feedback/types'
 import { MessageFeedbackActions } from '../src/client/MessageFeedbackActions.tsx'
 import type { MessageFeedbackActionResult, MessageFeedbackView } from '../src/client/controller.ts'
 import { zh } from '../src/client/locales.ts'

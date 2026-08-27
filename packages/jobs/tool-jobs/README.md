@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-tool-jobs
+# @pentest-harness/dsh-tool-jobs
 
 English | [中文](README.zh.md)
 

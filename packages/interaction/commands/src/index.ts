@@ -1,17 +1,17 @@
 /**
  * Plugin-owned human-command registry shared by interactive UI adapters.
- * @module @deepseek-ai/dsh-commands
+ * @module @pentest-harness/dsh-commands
  */
 
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { AttachmentError, admitEncodedImages } from '@deepseek-ai/dsh-attachment'
-import type { EncodedImageAttachment } from '@deepseek-ai/dsh-attachment/types'
-import type { ImageBlock } from '@deepseek-ai/dsh-llm'
-import { NamedEntries, ScopedLayers } from '@deepseek-ai/dsh-scope'
-import type { ScopeKey, ScopeLayer } from '@deepseek-ai/dsh-scope'
-import type { Session, SessionEvent, SessionEventMap } from '@deepseek-ai/dsh-session'
-import { TypertRemoteService, Remote } from '@deepseek-ai/dsh-typert-protocol'
+import { Context } from '@pentest-harness/cordis'
+import type { Agent } from '@pentest-harness/dsh-agent'
+import { AttachmentError, admitEncodedImages } from '@pentest-harness/dsh-attachment'
+import type { EncodedImageAttachment } from '@pentest-harness/dsh-attachment/types'
+import type { ImageBlock } from '@pentest-harness/dsh-llm'
+import { NamedEntries, ScopedLayers } from '@pentest-harness/dsh-scope'
+import type { ScopeKey, ScopeLayer } from '@pentest-harness/dsh-scope'
+import type { Session, SessionEvent, SessionEventMap } from '@pentest-harness/dsh-session'
+import { TypertRemoteService, Remote } from '@pentest-harness/dsh-typert-protocol'
 import { CommandId } from './brand.ts'
 import type {
   CommandDescriptor,
@@ -101,7 +101,7 @@ class CommandLayer implements ScopeLayer {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@pentest-harness/cordis' {
   interface Context {
     commands: CommandRuntime
   }

@@ -1,13 +1,13 @@
 /**
- * Package-owned invariant companion for `@deepseek-ai/dsh-timeout`.
- * @module @deepseek-ai/dsh-timeout/invariant
+ * Package-owned invariant companion for `@pentest-harness/dsh-timeout`.
+ * @module @pentest-harness/dsh-timeout/invariant
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
+import type { Context } from '@pentest-harness/cordis'
+import type { InvariantInstaller } from '@pentest-harness/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-timeout'
+const PACKAGE_NAME = '@pentest-harness/dsh-timeout'
 
 /** Cordis companion plugin name. */
 export const name = 'timeout-invariant'

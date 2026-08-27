@@ -2,18 +2,18 @@
  * JSON-RPC methods and notifications for out-of-process harness SDKs.
  * The surrounding context owns plugins, persistence, and configured adapters.
  *
- * @module @deepseek-ai/dsh-sdk-jsonrpc-server/server
+ * @module @pentest-harness/dsh-sdk-jsonrpc-server/server
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@pentest-harness/cordis'
 import { resolve } from 'node:path'
-import type { Agent, AgentHandle } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { carrierKeyOf, type Scoped } from '@deepseek-ai/dsh-scope'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import type { SubagentRunEndInfo } from '@deepseek-ai/dsh-subagent'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek'
+import type { Agent, AgentHandle } from '@pentest-harness/dsh-agent'
+import { createUserMessage } from '@pentest-harness/dsh-llm'
+import { carrierKeyOf, type Scoped } from '@pentest-harness/dsh-scope'
+import { SessionId } from '@pentest-harness/dsh-session'
+import type SubagentRuntime from '@pentest-harness/dsh-subagent'
+import type { SubagentRunEndInfo } from '@pentest-harness/dsh-subagent'
+import * as LlmDeepSeek from '@pentest-harness/dsh-llm-deepseek'
 import type {
   InitializeParams,
   InitializeResult,
@@ -23,7 +23,7 @@ import type {
   SessionPromptResult,
   SubagentFinishedNotification,
   SubagentStartedNotification,
-} from '@deepseek-ai/dsh-sdk-protocol'
+} from '@pentest-harness/dsh-sdk-protocol'
 
 interface SessionRecord {
   handle: AgentHandle
@@ -219,7 +219,7 @@ export class HarnessSdkJsonRpcServer {
     // No preset composition: this server's compositions keep the model-facing
     // rows in the host plane, so this agent reads them from the global layer. A
     // deployment that configures a roster has to join one here first
-    // (@deepseek-ai/dsh-agent-presets README, "Composing a child agent").
+    // (@pentest-harness/dsh-agent-presets README, "Composing a child agent").
     const handle = await this.ctx.agents.create({
       sessionId: SessionId(sessionId),
       meta: { cwd: this.cwd },

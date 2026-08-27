@@ -1,17 +1,17 @@
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createUserMessage } from '@pentest-harness/dsh-llm'
 /**
  * Keyless real-Loader-path smoke for the combined SQLite session-query service.
  *
- * @module @deepseek-ai/dsh-session-query-sqlite/tests/load-path
+ * @module @pentest-harness/dsh-session-query-sqlite/tests/load-path
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import { SESSION_FORMAT_VERSION, SessionId } from '@deepseek-ai/dsh-session'
-import SessionStore from '@deepseek-ai/dsh-session'
-import SqliteSessionPersistence from '@deepseek-ai/dsh-session-persistence-sqlite'
-import SqliteSessionQueryEngine, * as queryModule from '@deepseek-ai/dsh-session-query-sqlite'
+import { Context } from '@pentest-harness/cordis'
+import Loader from '@pentest-harness/cordis-plugin-loader'
+import { SESSION_FORMAT_VERSION, SessionId } from '@pentest-harness/dsh-session'
+import SessionStore from '@pentest-harness/dsh-session'
+import SqliteSessionPersistence from '@pentest-harness/dsh-session-persistence-sqlite'
+import SqliteSessionQueryEngine, * as queryModule from '@pentest-harness/dsh-session-query-sqlite'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'

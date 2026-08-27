@@ -3,15 +3,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import Storage from '@deepseek-ai/dsh-storage'
-import * as StorageDomain from '@deepseek-ai/dsh-storage-domain'
-import * as StorageJson from '@deepseek-ai/dsh-storage-json'
-import { remoteMethods } from '@deepseek-ai/dsh-typert-protocol'
+import { Context } from '@pentest-harness/cordis'
+import Include from '@pentest-harness/cordis-plugin-include'
+import Loader from '@pentest-harness/cordis-plugin-loader'
+import SessionStore, { SessionId } from '@pentest-harness/dsh-session'
+import JsonlSessionPersistence from '@pentest-harness/dsh-session-persistence-jsonl'
+import Storage from '@pentest-harness/dsh-storage'
+import * as StorageDomain from '@pentest-harness/dsh-storage-domain'
+import * as StorageJson from '@pentest-harness/dsh-storage-json'
+import { remoteMethods } from '@pentest-harness/dsh-typert-protocol'
 import MessageFeedbackService from '../src/index.ts'
 import { appendMessageFixture } from './helpers.ts'
 
@@ -30,12 +30,12 @@ async function loadComposition(configPath: string): Promise<Context> {
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-session-persistence-jsonl', JsonlSessionPersistence],
-    ['@deepseek-ai/dsh-storage', Storage],
-    ['@deepseek-ai/dsh-storage-json', StorageJson],
-    ['@deepseek-ai/dsh-storage-domain', StorageDomain],
-    ['@deepseek-ai/dsh-message-feedback', MessageFeedbackService],
+    ['@pentest-harness/dsh-session', SessionStore],
+    ['@pentest-harness/dsh-session-persistence-jsonl', JsonlSessionPersistence],
+    ['@pentest-harness/dsh-storage', Storage],
+    ['@pentest-harness/dsh-storage-json', StorageJson],
+    ['@pentest-harness/dsh-storage-domain', StorageDomain],
+    ['@pentest-harness/dsh-message-feedback', MessageFeedbackService],
   ])
   ctx.loader.internal = {
     version: 'v2',
@@ -61,20 +61,20 @@ describe('message feedback through a real Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'dsh-message-feedback-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@deepseek-ai/dsh-session'",
-      "- name: '@deepseek-ai/dsh-session-persistence-jsonl'",
+      "- name: '@pentest-harness/dsh-session'",
+      "- name: '@pentest-harness/dsh-session-persistence-jsonl'",
       '  config:',
       `    root: ${JSON.stringify(join(root, 'sessions'))}`,
       '    compression: none',
       '    writeBatchMaxDelayMs: 1',
-      "- name: '@deepseek-ai/dsh-storage'",
-      "- name: '@deepseek-ai/dsh-storage-json'",
+      "- name: '@pentest-harness/dsh-storage'",
+      "- name: '@pentest-harness/dsh-storage-json'",
       '  config:',
       `    root: ${JSON.stringify(join(root, 'storage'))}`,
-      "- name: '@deepseek-ai/dsh-storage-domain'",
+      "- name: '@pentest-harness/dsh-storage-domain'",
       '  config:',
       '    backend: json',
-      "- name: '@deepseek-ai/dsh-message-feedback'",
+      "- name: '@pentest-harness/dsh-message-feedback'",
       '  config:',
       '    maxNoteBytes: 32',
       '',

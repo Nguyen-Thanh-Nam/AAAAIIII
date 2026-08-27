@@ -1,14 +1,14 @@
 /**
  * Package-owned invariant companion for
- * `@deepseek-ai/dsh-subagent-claude-code`.
- * @module @deepseek-ai/dsh-subagent-claude-code/invariant
+ * `@pentest-harness/dsh-subagent-claude-code`.
+ * @module @pentest-harness/dsh-subagent-claude-code/invariant
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
+import type { Context } from '@pentest-harness/cordis'
+import type { InvariantInstaller } from '@pentest-harness/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-subagent-claude-code'
+const PACKAGE_NAME = '@pentest-harness/dsh-subagent-claude-code'
 
 /** Cordis companion plugin name. */
 export const name = 'subagent-claude-code-invariant'

@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-typert-loader
+# @pentest-harness/dsh-typert-loader
 
 [English](README.md) | 中文
 

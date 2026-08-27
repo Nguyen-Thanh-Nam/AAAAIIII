@@ -14,9 +14,9 @@
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import type { IApiClient } from '@deepseek-ai/dsh-api-remotes/client'
-import { Button, IconPlusOutline16, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace } from '@deepseek-ai/dsh-client-ui-slots'
+import type { IApiClient } from '@pentest-harness/dsh-api-remotes/client'
+import { Button, IconPlusOutline16, Modal } from '@pentest-harness/dsh-client-ui-primitives'
+import type { InjectFace } from '@pentest-harness/dsh-client-ui-slots'
 import { CustomProviderCard } from './CustomProviderCard.tsx'
 import { formatCapacity } from './DeepSeekModelsEditor.tsx'
 import { deriveKeyRef, messageOf, protocolChoices, protocolLabel, providerUsable } from './store.ts'

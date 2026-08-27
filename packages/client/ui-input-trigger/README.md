@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-client-ui-input-trigger
+# @pentest-harness/dsh-client-ui-input-trigger
 
 English | [中文](README.zh.md)
 

@@ -5,19 +5,19 @@
  * Background policy is selected by this plugin's configuration: one-shot
  * calls own a plain Task, while continuable calls use
  * `ctx.subagents.startContinuable()`.
- * @module @deepseek-ai/dsh-tool-subagent
+ * @module @pentest-harness/dsh-tool-subagent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { defineTool } from '@deepseek-ai/dsh-tools'
-import type { AgentOptions } from '@deepseek-ai/dsh-agent'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import type { JsonValue } from '@deepseek-ai/dsh-session'
-import { assertSubagentMaxDepth, settleRun } from '@deepseek-ai/dsh-subagent'
-import type { SubagentProvider, SubagentResult, SubagentRun } from '@deepseek-ai/dsh-subagent'
-import type { JobOutcome } from '@deepseek-ai/dsh-jobs'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import type { Context } from '@pentest-harness/cordis'
+import z from '@pentest-harness/schemastery'
+import { defineTool } from '@pentest-harness/dsh-tools'
+import type { AgentOptions } from '@pentest-harness/dsh-agent'
+import type { ContentBlock } from '@pentest-harness/dsh-llm'
+import type { JsonValue } from '@pentest-harness/dsh-session'
+import { assertSubagentMaxDepth, settleRun } from '@pentest-harness/dsh-subagent'
+import type { SubagentProvider, SubagentResult, SubagentRun } from '@pentest-harness/dsh-subagent'
+import type { JobOutcome } from '@pentest-harness/dsh-jobs'
+import type {} from '@pentest-harness/dsh-system-prompt'
 
 export const name = 'tool-subagent'
 export const inject = ['tools', 'subagents', 'systemPrompt']
@@ -408,7 +408,7 @@ export function apply(ctx: Context, config: Config): void {
           }
           const jobs = ctx.get('jobs')
           if (jobs === undefined) {
-            throw new Error('background jobs unavailable: load @deepseek-ai/dsh-jobs and @deepseek-ai/dsh-tool-jobs')
+            throw new Error('background jobs unavailable: load @pentest-harness/dsh-jobs and @pentest-harness/dsh-tool-jobs')
           }
           // One-shot background child: job preflight finishes before the
           // starter can spawn, and the task-owned signal covers startup.

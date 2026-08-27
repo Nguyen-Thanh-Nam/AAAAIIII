@@ -76,13 +76,13 @@
         "**/*.ts"
       ],
       "ignoreDependencies": [
-        "@deepseek-ai/.+"
+        "@pentest-harness/.+"
       ]
     },
     "packages/host/directory-picker-auto": {
       "ignoreDependencies": [
-        "@deepseek-ai/dsh-client-ui-directory-picker-browse",
-        "@deepseek-ai/dsh-client-ui-directory-picker-native"
+        "@pentest-harness/dsh-client-ui-directory-picker-browse",
+        "@pentest-harness/dsh-client-ui-directory-picker-native"
       ]
     },
     "packages/extensions/cordis-host-runner": {
@@ -116,7 +116,7 @@
         "tests/**/*.ts"
       ],
       "ignoreDependencies": [
-        "@deepseek-ai/dsh-api-gateway"
+        "@pentest-harness/dsh-api-gateway"
       ]
     },
     "packages/client/ui-primitives": {
@@ -618,8 +618,8 @@
         "tests/**/*.ts"
       ],
       "ignoreDependencies": [
-        "@deepseek-ai/dsh-client-ui-primitives",
-        "@deepseek-ai/dsh-client-ui-slots",
+        "@pentest-harness/dsh-client-ui-primitives",
+        "@pentest-harness/dsh-client-ui-slots",
         "@types/react",
         "@types/react-dom",
         "react",
@@ -637,7 +637,7 @@
         "tests/**/*.ts"
       ],
       "ignoreDependencies": [
-        "@deepseek-ai/.+"
+        "@pentest-harness/.+"
       ]
     },
     "packages/subagent/subagent-dsh-sdk": {
@@ -652,17 +652,17 @@
     },
     "packages/bundle/base": {
       "ignoreDependencies": [
-        "@deepseek-ai/.+"
+        "@pentest-harness/.+"
       ]
     },
     "packages/bundle/headless": {
       "ignoreDependencies": [
-        "@deepseek-ai/dsh-code-runtime-worker-thread"
+        "@pentest-harness/dsh-code-runtime-worker-thread"
       ]
     },
     "packages/bundle/web-app": {
       "ignoreDependencies": [
-        "@deepseek-ai/.+"
+        "@pentest-harness/.+"
       ]
     }
   }

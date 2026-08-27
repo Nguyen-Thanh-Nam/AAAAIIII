@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-session-telemetry
+# @pentest-harness/dsh-session-telemetry
 
 [English](README.md) | 中文
 

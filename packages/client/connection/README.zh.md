@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-client-connection
+# @pentest-harness/dsh-client-connection
 
 [English](README.md) | 中文
 

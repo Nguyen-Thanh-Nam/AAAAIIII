@@ -1,15 +1,15 @@
 /**
  * Model-facing persistent `bash` tool over the owner-scoped PTY seam.
- * @module @deepseek-ai/dsh-tool-bash-persistent
+ * @module @pentest-harness/dsh-tool-bash-persistent
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { TerminalReadResult, TerminalSessionId } from '@deepseek-ai/dsh-terminal'
-import { deadline, timeoutOf } from '@deepseek-ai/dsh-timeout'
-import { defineTool } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@pentest-harness/cordis'
+import z from '@pentest-harness/schemastery'
+import type { Agent } from '@pentest-harness/dsh-agent'
+import type { TerminalReadResult, TerminalSessionId } from '@pentest-harness/dsh-terminal'
+import { deadline, timeoutOf } from '@pentest-harness/dsh-timeout'
+import { defineTool } from '@pentest-harness/dsh-tools'
 
 // TODO: Replace the file-search advice; arbitrary command output need not come from a searchable file.
 const TRUNCATED_MESSAGE = '<response clipped><NOTE>To save on context only part of this file has been shown to you. You should retry this tool after you have searched inside the file with `grep -n` in order to find the line numbers of what you are looking for.</NOTE>'

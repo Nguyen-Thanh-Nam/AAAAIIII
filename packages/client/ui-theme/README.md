@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-client-ui-theme
+# @pentest-harness/dsh-client-ui-theme
 
 English | [中文](README.zh.md)
 

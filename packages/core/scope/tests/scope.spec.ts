@@ -1,9 +1,9 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { bindScopeParent, carrierKeyOf, createScope, isScopeCarrier, scopeChainOf, scopeOf, scopeParentOf, scopeTarget } from '@deepseek-ai/dsh-scope'
-import type { Scope, Scoped } from '@deepseek-ai/dsh-scope'
+import { Context } from '@pentest-harness/cordis'
+import { bindScopeParent, carrierKeyOf, createScope, isScopeCarrier, scopeChainOf, scopeOf, scopeParentOf, scopeTarget } from '@pentest-harness/dsh-scope'
+import type { Scope, Scoped } from '@pentest-harness/dsh-scope'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@pentest-harness/cordis' {
   interface Events {
     /**
      * Test-only event for scope-filtered dispatch.

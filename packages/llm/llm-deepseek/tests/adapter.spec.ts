@@ -2,10 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
-import { createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+import { Context } from '@pentest-harness/cordis'
+import { AttachmentId, ImageVariantId } from '@pentest-harness/dsh-attachment'
+import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@pentest-harness/dsh-attachment'
+import { createLaunchEnvironmentSnapshot } from '@pentest-harness/dsh-launch-environment'
 import LlmRuntime, { CallId, createUserMessage,
   CONTEXT_WINDOW_EXCEEDED_CODE,
   LlmError,
@@ -13,12 +13,12 @@ import LlmRuntime, { CallId, createUserMessage,
   QUOTA_EXCEEDED_CODE,
   ReasoningEffortId,
   userAgent,
-} from '@deepseek-ai/dsh-llm'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
-import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek'
-import { DeepSeekAdapter, resolveAdapterOptions } from '@deepseek-ai/dsh-llm-deepseek'
+} from '@pentest-harness/dsh-llm'
+import { MAX_TIMER_DELAY_MS } from '@pentest-harness/dsh-timeout'
+import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@pentest-harness/dsh-anonymous-user-id'
+import { SessionId } from '@pentest-harness/dsh-session'
+import * as LlmDeepSeek from '@pentest-harness/dsh-llm-deepseek'
+import { DeepSeekAdapter, resolveAdapterOptions } from '@pentest-harness/dsh-llm-deepseek'
 import { httpErrorCode, resolveRequestImagePolicy } from '../src/adapter.ts'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'

@@ -1,13 +1,13 @@
 /**
- * Package-owned invariant companion for `@deepseek-ai/dsh-agent-tool-presentation`.
- * @module @deepseek-ai/dsh-agent-tool-presentation/invariant
+ * Package-owned invariant companion for `@pentest-harness/dsh-agent-tool-presentation`.
+ * @module @pentest-harness/dsh-agent-tool-presentation/invariant
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
+import type { Context } from '@pentest-harness/cordis'
+import type { InvariantInstaller } from '@pentest-harness/dsh-invariants'
 
-const PACKAGE_NAME = '@deepseek-ai/dsh-agent-tool-presentation'
+const PACKAGE_NAME = '@pentest-harness/dsh-agent-tool-presentation'
 
 /** Cordis companion plugin name. */
 export const name = 'tool-presentation-invariant'

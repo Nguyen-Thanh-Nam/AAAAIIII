@@ -1,11 +1,11 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@pentest-harness/cordis'
 import type {
   ConversationNodeDefinition, UnknownSurfaceNode,
-} from '@deepseek-ai/dsh-client-runtime/client'
-import { isAppendSurfaceEvent } from '@deepseek-ai/dsh-client-runtime/client'
+} from '@pentest-harness/dsh-client-runtime/client'
+import { isAppendSurfaceEvent } from '@pentest-harness/dsh-client-runtime/client'
 import { chatNode } from './common.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@pentest-harness/dsh-client-ui-conversation/client' {
   interface ChatNodeDataMap {
     /** Generic presentation of an unclaimed append-surface event. */
     unknown: UnknownSurfaceNode

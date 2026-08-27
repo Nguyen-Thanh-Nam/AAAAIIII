@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-storage-sqlite
+# @pentest-harness/dsh-storage-sqlite
 
 [English](README.md) | 中文
 

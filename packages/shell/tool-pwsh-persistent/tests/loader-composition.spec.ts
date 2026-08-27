@@ -4,23 +4,23 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import { CallId } from '@deepseek-ai/dsh-llm'
-import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry, { Inbox } from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import TerminalSessionService from '@deepseek-ai/dsh-terminal'
-import * as TerminalBash from '@deepseek-ai/dsh-terminal-bash'
-import SandboxProvider from '@deepseek-ai/dsh-sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import LocalSubprocessService from '@deepseek-ai/dsh-subprocess-local'
-import { resolvePwshPath } from '@deepseek-ai/dsh-pwsh-local/src/resolve.ts'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRegistry from '@deepseek-ai/dsh-tools'
-import * as ToolPwshPersistent from '@deepseek-ai/dsh-tool-pwsh-persistent'
+import { Context } from '@pentest-harness/cordis'
+import Loader from '@pentest-harness/cordis-plugin-loader'
+import Include from '@pentest-harness/cordis-plugin-include'
+import { CallId } from '@pentest-harness/dsh-llm'
+import { Session, SessionId } from '@pentest-harness/dsh-session'
+import AgentRegistry, { Inbox } from '@pentest-harness/dsh-agent'
+import type { Agent } from '@pentest-harness/dsh-agent'
+import TerminalSessionService from '@pentest-harness/dsh-terminal'
+import * as TerminalBash from '@pentest-harness/dsh-terminal-bash'
+import SandboxProvider from '@pentest-harness/dsh-sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@pentest-harness/dsh-sandbox'
+import SandboxPolicyService from '@pentest-harness/dsh-sandbox-policy'
+import LocalSubprocessService from '@pentest-harness/dsh-subprocess-local'
+import { resolvePwshPath } from '@pentest-harness/dsh-pwsh-local/src/resolve.ts'
+import SystemPrompt from '@pentest-harness/dsh-system-prompt'
+import ToolRegistry from '@pentest-harness/dsh-tools'
+import * as ToolPwshPersistent from '@pentest-harness/dsh-tool-pwsh-persistent'
 
 const hasPwsh = spawnSync(
   resolvePwshPath(), ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$true'],
@@ -75,17 +75,17 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     root = await mkdtemp(join(tmpdir(), 'dsh-persistent-pwsh-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@deepseek-ai/dsh-agent'",
-      "- name: '@deepseek-ai/dsh-system-prompt'",
-      "- name: '@deepseek-ai/dsh-tools'",
-      "- name: '@deepseek-ai/dsh-terminal'",
-      "- name: '@deepseek-ai/dsh-test-sandbox'",
-      "- name: '@deepseek-ai/dsh-sandbox-policy'",
+      "- name: '@pentest-harness/dsh-agent'",
+      "- name: '@pentest-harness/dsh-system-prompt'",
+      "- name: '@pentest-harness/dsh-tools'",
+      "- name: '@pentest-harness/dsh-terminal'",
+      "- name: '@pentest-harness/dsh-test-sandbox'",
+      "- name: '@pentest-harness/dsh-sandbox-policy'",
       '  config:',
       '    mode: danger-full-access',
       `    workspaceRoot: ${JSON.stringify(root)}`,
-      "- name: '@deepseek-ai/dsh-subprocess-local'",
-      "- name: '@deepseek-ai/dsh-terminal-bash'",
+      "- name: '@pentest-harness/dsh-subprocess-local'",
+      "- name: '@pentest-harness/dsh-terminal-bash'",
       '  config:',
       '    shellDialect: pwsh',
       '    pollIntervalMs: 10',
@@ -95,7 +95,7 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
       '    scrollbackLines: 20000',
       '    timeoutMs: 8000',
       '    disposeGraceMs: 500',
-      "- name: '@deepseek-ai/dsh-tool-pwsh-persistent'",
+      "- name: '@pentest-harness/dsh-tool-pwsh-persistent'",
       '  config:',
       '    timeoutMs: 20000',
       '',
@@ -106,15 +106,15 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-agent', AgentRegistry],
-      ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
-      ['@deepseek-ai/dsh-tools', ToolRegistry],
-      ['@deepseek-ai/dsh-terminal', TerminalSessionService],
-      ['@deepseek-ai/dsh-test-sandbox', PassthroughSandbox],
-      ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
-      ['@deepseek-ai/dsh-subprocess-local', LocalSubprocessService],
-      ['@deepseek-ai/dsh-terminal-bash', TerminalBash],
-      ['@deepseek-ai/dsh-tool-pwsh-persistent', ToolPwshPersistent],
+      ['@pentest-harness/dsh-agent', AgentRegistry],
+      ['@pentest-harness/dsh-system-prompt', SystemPrompt],
+      ['@pentest-harness/dsh-tools', ToolRegistry],
+      ['@pentest-harness/dsh-terminal', TerminalSessionService],
+      ['@pentest-harness/dsh-test-sandbox', PassthroughSandbox],
+      ['@pentest-harness/dsh-sandbox-policy', SandboxPolicyService],
+      ['@pentest-harness/dsh-subprocess-local', LocalSubprocessService],
+      ['@pentest-harness/dsh-terminal-bash', TerminalBash],
+      ['@pentest-harness/dsh-tool-pwsh-persistent', ToolPwshPersistent],
     ])
     context.loader.internal = {
       version: 'v2',

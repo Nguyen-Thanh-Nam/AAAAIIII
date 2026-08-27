@@ -1,17 +1,17 @@
 /**
  * Model-facing `get_goal`, `create_goal`, and `update_goal` tools over the
  * persisted same-session goal domain.
- * @module @deepseek-ai/dsh-tool-goal
+ * @module @pentest-harness/dsh-tool-goal
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { GoalId } from '@deepseek-ai/dsh-goal'
-import type { GoalRef, GoalView } from '@deepseek-ai/dsh-goal'
-import { boundContextSummary, createUserMessage, HarnessError } from '@deepseek-ai/dsh-llm'
-import { defineTool } from '@deepseek-ai/dsh-tools'
-import type { GenericCallView } from '@deepseek-ai/dsh-tools'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import type { Context } from '@pentest-harness/cordis'
+import z from '@pentest-harness/schemastery'
+import { GoalId } from '@pentest-harness/dsh-goal'
+import type { GoalRef, GoalView } from '@pentest-harness/dsh-goal'
+import { boundContextSummary, createUserMessage, HarnessError } from '@pentest-harness/dsh-llm'
+import { defineTool } from '@pentest-harness/dsh-tools'
+import type { GenericCallView } from '@pentest-harness/dsh-tools'
+import type {} from '@pentest-harness/dsh-system-prompt'
 import {
   completionAuthority,
   goalToolExecution,

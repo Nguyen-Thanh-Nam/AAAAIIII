@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-agent-instructions
+# @pentest-harness/dsh-agent-instructions
 
 [English](README.md) | 中文
 

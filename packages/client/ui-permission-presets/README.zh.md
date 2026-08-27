@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-client-ui-permission-presets
+# @pentest-harness/dsh-client-ui-permission-presets
 
 [English](README.md) | 中文
 

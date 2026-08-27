@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-client-web
+# @pentest-harness/dsh-client-web
 
 English | [中文](README.zh.md)
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
+import { Context } from '@pentest-harness/cordis'
+import { createUserMessage } from '@pentest-harness/dsh-llm'
+import SessionStore, { SessionId } from '@pentest-harness/dsh-session'
 import { RuntimeContextProjection } from '../src/runtime-context.ts'
 
 const SOURCE = '@pentest-harness/system-prompt'

@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-agent-default-model
+# @pentest-harness/dsh-agent-default-model
 
 English | [中文](README.zh.md)
 
