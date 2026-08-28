@@ -106,12 +106,22 @@ MIT
 
 <div align="center">
 
-### Sponsored by
+### ⚡ Sponsored by HackWithClaude
 
-<a href="https://hackwithclaude.com" target="_blank" rel="noopener noreferrer">
-  <img src="https://img.shields.io/badge/HackWithClaude-Shop-4D6BFE?style=for-the-badge&logo=claude&logoColor=white" alt="HackWithClaude" />
-</a>
+<br/>
 
-**HackWithClaude.com** — unlimited AI models. Check them out.
+<p>
+  <a href="https://hackwithclaude.com" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/HackWithClaude-Elevate%20Your%20AI%20Game-4D6BFE?style=for-the-badge&logo=claude&logoColor=white&labelColor=18181B"
+         alt="HackWithClaude — Elevate Your AI Game" />
+  </a>
+</p>
+
+**Unlimited AI models · One platform · Zero limits**
+
+Access every major model — Claude, GPT, Gemini, and more — in one place.
+Built for builders who ship.
+
+🚀 Visit HackWithClaude.com · 💡 Explore the models
 
 </div>
