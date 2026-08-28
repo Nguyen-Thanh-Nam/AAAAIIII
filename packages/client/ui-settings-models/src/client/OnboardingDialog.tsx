@@ -17,9 +17,9 @@ import type { SettingsSchemaOperations } from './schema-operations.ts'
 import { ProviderEditor } from './ProviderEditor.tsx'
 import type { en } from './locales.ts'
 import { OnboardingModal } from './OnboardingModal.tsx'
-import styles from './DeepSeekOnboardingDialog.module.css'
+import styles from './OnboardingDialog.module.css'
 
-/** Registration-side dependencies of {@link DeepSeekOnboardingDialog}. */
+/** Registration-side dependencies of {@link OnboardingDialog}. */
 export interface DeepSeekOnboardingInjected {
   hooks: {
     /** Shared Models-page join state, bound by the slot renderer. */
@@ -36,7 +36,7 @@ export interface DeepSeekOnboardingInjected {
 }
 
 /** Slot owner props plus the feature's injected dependencies. */
-export type DeepSeekOnboardingDialogProps =
+export type OnboardingDialogProps =
   PropsRuntime<'settings.onboarding'> & InjectFace<DeepSeekOnboardingInjected>
 
 /* v8 ignore next 3 -- closed-union defaults only defend future source widening */
@@ -50,7 +50,7 @@ function assertNever(_value: never): never {
  * @param props - settings-shell owner state and Models feature dependencies.
  * @returns the onboarding modal or null when onboarding needs no intervention.
  */
-export function DeepSeekOnboardingDialog(props: DeepSeekOnboardingDialogProps): ReactNode {
+export function OnboardingDialog(props: OnboardingDialogProps): ReactNode {
   const { complete, controller, useModels, api, schema, t } = props
   const state = useModels(snapshot => snapshot)
   const readiness = onboardingReadiness(state)

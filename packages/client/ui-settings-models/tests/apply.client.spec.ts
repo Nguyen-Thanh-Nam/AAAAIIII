@@ -11,7 +11,7 @@ import {
   WELCOME_NOTICE_ACK_FIELD, WELCOME_NOTICE_SETTINGS_NAMESPACE, WELCOME_NOTICE_VERSION,
 } from '../src/onboarding-copy.ts'
 import { ModelsSection } from '../src/client/ModelsSection.tsx'
-import { DeepSeekOnboardingDialog } from '../src/client/DeepSeekOnboardingDialog.tsx'
+import { OnboardingDialog } from '../src/client/OnboardingDialog.tsx'
 import { WelcomeNotice } from '../src/client/WelcomeNotice.tsx'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
@@ -78,10 +78,10 @@ describe('ui-settings-models apply', () => {
       options: { id: 'welcome-notice', order: -100 },
     })
     const deepSeek = onboarding.find(entry => entry.options.id === 'deepseek-official')!
-    expect(deepSeek.component).toBe(DeepSeekOnboardingDialog)
+    expect(deepSeek.component).toBe(OnboardingDialog)
     expect(deepSeek.options).toMatchObject({ id: 'deepseek-official', order: 0 })
     const deepSeekInjected = (
-      deepSeek.inject as unknown as () => import('../src/client/DeepSeekOnboardingDialog.tsx').DeepSeekOnboardingInjected
+      deepSeek.inject as unknown as () => import('../src/client/OnboardingDialog.tsx').DeepSeekOnboardingInjected
     )()
     expect(deepSeekInjected.hooks.models).toBe(injected.controller.store)
     expect(deepSeekInjected.api).toBeDefined()
@@ -206,7 +206,7 @@ describe('pushed invalidations', () => {
       .find(candidate => candidate.options.id === 'deepseek-official')!
     const injected = (
       entry.inject as unknown as
-      () => import('../src/client/DeepSeekOnboardingDialog.tsx').DeepSeekOnboardingInjected
+      () => import('../src/client/OnboardingDialog.tsx').DeepSeekOnboardingInjected
     )()
     injected.controller.store.update((state) => { state.status = 'ready' })
     const load = vi.spyOn(injected.controller, 'load').mockResolvedValue()

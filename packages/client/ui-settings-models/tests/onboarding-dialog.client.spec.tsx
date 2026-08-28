@@ -5,8 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import Schema from '@pentest-harness/schemastery'
 import type { RpcResponse, SettingsNamespaceView } from '@pentest-harness/dsh-api-remotes/client'
 import { bindSnapshotSelector } from '@pentest-harness/dsh-client-test-runtime'
-import { DeepSeekOnboardingDialog } from '../src/client/DeepSeekOnboardingDialog.tsx'
-import type { DeepSeekOnboardingDialogProps } from '../src/client/DeepSeekOnboardingDialog.tsx'
+import { OnboardingDialog } from '../src/client/OnboardingDialog.tsx'
+import type { OnboardingDialogProps } from '../src/client/OnboardingDialog.tsx'
 import { SettingsDescribeMirror } from '@pentest-harness/dsh-client-ui-settings/src/client/settings-mirror.ts'
 import { ModelsSettingsStore } from '../src/client/store.ts'
 import { en } from '../src/client/locales.ts'
@@ -130,7 +130,7 @@ function harness(options: {
   const openSection = vi.fn()
   const complete = vi.fn()
   const unusedHook = (() => { throw new Error('unused standard hook') }) as never
-  const props: DeepSeekOnboardingDialogProps = {
+  const props: OnboardingDialogProps = {
     stepId: 'deepseek-official',
     complete,
     openSection,
@@ -148,17 +148,17 @@ function harness(options: {
   }
 }
 
-describe('DeepSeekOnboardingDialog', () => {
+describe('OnboardingDialog', () => {
   it('renders when the shell root is absent', async () => {
     const h = harness()
     document.getElementById('root')!.remove()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OnboardingDialog {...h.props} />)
     expect(await screen.findByRole('dialog', { name: en.onboardingTitle })).toBeTruthy()
   })
 
   it('loads a credential-only modal, inerts the product, and focuses the key', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OnboardingDialog {...h.props} />)
     expect(await screen.findByRole('dialog', { name: en.onboardingTitle })).toBeTruthy()
     expect(document.getElementById('root')?.inert).toBe(true)
     expect(screen.getByText(en.onboardingDescription)).toBeTruthy()
@@ -171,7 +171,7 @@ describe('DeepSeekOnboardingDialog', () => {
     const h = harness()
     const appRoot = document.getElementById('root')!
     appRoot.inert = true
-    const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+    const view = render(<OnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
 
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -185,7 +185,7 @@ describe('DeepSeekOnboardingDialog', () => {
 
   it('requires a non-blank key before Save and continue is available', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
     const save = screen.getByRole<HTMLButtonElement>('button', { name: en.onboardingSave })
     expect(save.disabled).toBe(true)
@@ -201,7 +201,7 @@ describe('DeepSeekOnboardingDialog', () => {
       [{ setReject: 'connection lost' }, 'connection lost'],
     ] as const) {
       const h = harness(options)
-      const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+      const view = render(<OnboardingDialog {...h.props} />)
       await screen.findByRole('dialog')
       fireEvent.change(screen.getByLabelText(en.keyInput), { target: { value: 'sk-live' } })
       fireEvent.click(screen.getByRole('button', { name: en.onboardingSave }))
@@ -216,7 +216,7 @@ describe('DeepSeekOnboardingDialog', () => {
 
   it('allows configure-later dismissal without opening settings', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
     fireEvent.click(screen.getByRole('button', { name: en.onboardingLater }))
     expect(h.complete).toHaveBeenCalledOnce()
@@ -235,7 +235,7 @@ describe('DeepSeekOnboardingDialog', () => {
       harness({ settingsNamespace: false }),
       harness({ apiKeyEnv: null }),
     ]) {
-      const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+      const view = render(<OnboardingDialog {...h.props} />)
       await act(async () => { await h.controller.load() })
       expect(screen.queryByRole('dialog')).toBeNull()
       await waitFor(() => { expect(h.complete).toHaveBeenCalledOnce() })
@@ -250,7 +250,7 @@ describe('DeepSeekOnboardingDialog', () => {
       harness({ providerSettingsNs: '' }),
       harness({ configured: () => true, credential: { source: 'env', writable: false } }),
     ]) {
-      const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+      const view = render(<OnboardingDialog {...h.props} />)
       await act(async () => { await h.controller.load() })
       expect(screen.queryByRole('dialog')).toBeNull()
       await waitFor(() => { expect(h.complete).toHaveBeenCalledOnce() })
@@ -260,7 +260,7 @@ describe('DeepSeekOnboardingDialog', () => {
 
   it('closes when an external credential invalidation refreshes the shared join', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
     h.configure()
     await act(async () => { await h.controller.load() })

@@ -17,8 +17,8 @@ import type {} from '@pentest-harness/dsh-client-locale/client'
 import type {} from '@pentest-harness/dsh-api-remotes/client'
 import { ModelsSection } from './ModelsSection.tsx'
 import type { ModelsSectionInjected } from './ModelsSection.tsx'
-import { DeepSeekOnboardingDialog } from './DeepSeekOnboardingDialog.tsx'
-import type { DeepSeekOnboardingInjected } from './DeepSeekOnboardingDialog.tsx'
+import { OnboardingDialog } from './OnboardingDialog.tsx'
+import type { DeepSeekOnboardingInjected } from './OnboardingDialog.tsx'
 import { WelcomeNotice } from './WelcomeNotice.tsx'
 import type { WelcomeNoticeInjected } from './WelcomeNotice.tsx'
 import { decodeWelcomeSection, WelcomeNoticeStore } from './welcome-store.ts'
@@ -136,5 +136,5 @@ export function apply(ctx: ClientContext): void {
     id: 'deepseek-official',
     order: 0,
     inject: deepSeekOnboardingInjected,
-  }, DeepSeekOnboardingDialog))
+  }, OnboardingDialog))
 }
