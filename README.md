@@ -101,3 +101,17 @@ pnpm dsh web --port 3000
 ## License
 
 MIT
+
+---
+
+<div align="center">
+
+### Sponsored by
+
+<a href="https://hackwithclaude.com" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.shields.io/badge/HackWithClaude-Shop-4D6BFE?style=for-the-badge&logo=claude&logoColor=white" alt="HackWithClaude" />
+</a>
+
+**HackWithClaude.com** — unlimited AI models. Check them out.
+
+</div>
