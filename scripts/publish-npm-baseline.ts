@@ -261,7 +261,7 @@ class WorkspacePackageSet {
       // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
       if (!name.startsWith('@pentest-harness/')) {
-        throw new Error(`${manifestPath} must name an @deepseek-ai package`)
+        throw new Error(`${manifestPath} must name a @pentest-harness package`)
       }
       if (name === '@pentest-harness/dsh-root') {
         throw new Error(`${manifestPath} unexpectedly selected the workspace root`)

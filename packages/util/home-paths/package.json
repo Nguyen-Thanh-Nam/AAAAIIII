@@ -1,6 +1,6 @@
 {
   "name": "@pentest-harness/dsh-home-paths",
-  "description": "Shared filesystem path helpers for the DeepSeek Harness",
+  "description": "Shared filesystem path helpers for the Pentest Harness",
   "version": "0.1.1-rc.2",
   "publishConfig": {
     "access": "public"

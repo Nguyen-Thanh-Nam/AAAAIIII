@@ -16,6 +16,7 @@ import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellProcessRead, S
 import type { SubprocessCollect, SubprocessHandle, SubprocessOutputReader, SubprocessSpawnSpec } from '@pentest-harness/dsh-subprocess'
 import { installSettingsSection } from '@pentest-harness/dsh-settings'
 import { clampTimeout, deadline, MAX_TIMER_DELAY_MS, timeoutOf } from '@pentest-harness/dsh-timeout'
+import { resolveBashPath } from './resolve.ts'
 
 /**
  * Model-friendly environment overrides: disable colors, pagers, and
@@ -51,10 +52,14 @@ export interface Config {
   maxSpillBytes?: number
   /** Grace period for kill escalation and inherited pipes; at most `MAX_TIMER_DELAY_MS`. */
   graceMs?: number
+  /** Explicit bash executable. When omitted, Windows hosts probe well-known
+   *  installs (Git for Windows, the Store build, WSL) before falling back to
+   *  a bare `bash` resolved through PATH. */
+  bashPath?: string
 }
 
-/** The shape after schemastery applied the defaults (cwd has none). */
-type ResolvedConfig = Required<Omit<Config, 'cwd'>> & Pick<Config, 'cwd'>
+/** The shape after schemastery applied the defaults (cwd/bashPath have none). */
+type ResolvedConfig = Required<Omit<Config, 'cwd' | 'bashPath'>> & Pick<Config, 'cwd' | 'bashPath'>
 
 /** Project a settled collect-mode reader into the final CollectedOutput shape. */
 function finalOutput(reader: SubprocessOutputReader): CollectedOutput {
@@ -109,6 +114,7 @@ export class LocalBashExecutor extends ShellExecutor {
     maxOutputBytes: z.number().default(64_000),
     maxSpillBytes: z.number().default(DEFAULT_MAX_SPILL_BYTES),
     graceMs: z.number().default(DEFAULT_GRACE_MS),
+    bashPath: z.string(),
   })
 
   /** The currently authoritative config: the settings section, or the composition entry. */
@@ -118,6 +124,21 @@ export class LocalBashExecutor extends ShellExecutor {
   get config(): ResolvedConfig {
     return this.source()
   }
+
+  /** The declared executable the current {@link bashPath} was resolved from. */
+  private declaredBashPath: string | undefined
+
+  /** The bash executable this executor spawns (Windows well-known locations, else PATH). */
+  get bashPath(): string {
+    const declared = this.source().bashPath
+    if (declared !== this.declaredBashPath) {
+      this.declaredBashPath = declared
+      this.resolvedBashPath = resolveBashPath(declared)
+    }
+    return this.resolvedBashPath
+  }
+
+  private resolvedBashPath = resolveBashPath(undefined)
 
   constructor(ctx: Context, config: Config) {
     super(ctx)
@@ -209,7 +230,7 @@ export class LocalBashExecutor extends ShellExecutor {
   }
 
   async run(spec: ShellExecSpec): Promise<ShellRunResult> {
-    return this.runArgv(spec, ['bash', '-c', spec.command])
+    return this.runArgv(spec, [this.bashPath, '-c', spec.command])
   }
 
   /**
@@ -240,7 +261,7 @@ export class LocalBashExecutor extends ShellExecutor {
   }
 
   start(spec: ShellExecSpec): ShellProcess {
-    return this.startArgv(spec, ['bash', '-c', spec.command])
+    return this.startArgv(spec, [this.bashPath, '-c', spec.command])
   }
 
   /**
@@ -331,3 +352,5 @@ export class LocalBashExecutor extends ShellExecutor {
 }
 
 export default LocalBashExecutor
+
+export { candidateBashPaths, resolveBashPath } from './resolve.ts'

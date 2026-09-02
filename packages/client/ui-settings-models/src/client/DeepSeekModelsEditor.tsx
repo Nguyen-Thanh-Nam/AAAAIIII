@@ -5,7 +5,7 @@
  * override; reset removes that override instead of copying defaults into it.
  */
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   IconChevronDownOutline14, IconChevronRightOutline14, IconPlusOutline16, IconTrashOutline16,
@@ -163,8 +163,16 @@ export function DeepSeekModelsEditor(props: DeepSeekModelsEditorProps): ReactNod
   const [editing, setEditing] = useState<ReadonlyMap<string, string>>(() => new Map())
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(() => new Set())
 
+  // `props.models` is replaced on every keystroke (the parent re-bakes the
+  // array from the draft), so a handler captured by an event that fires in the
+  // same batch as another field's edit would map over a stale array and
+  // silently drop the other field's change. Mutations read the latest rows
+  // from this ref instead of the render closure.
+  const modelsRef = useRef(props.models)
+  modelsRef.current = props.models
+
   const update = (index: number, key: CatalogField, value: unknown): void => {
-    const next = props.models.map((model, at) => {
+    const next = modelsRef.current.map((model, at) => {
       const copy = { ...model }
       if (at !== index) return copy
       if (value === undefined) Reflect.deleteProperty(copy, key)
@@ -193,7 +201,7 @@ export function DeepSeekModelsEditor(props: DeepSeekModelsEditorProps): ReactNod
       }
       return next
     })
-    props.onChange(props.models.filter((_model, at) => at !== index).map(model => ({ ...model })))
+    props.onChange(modelsRef.current.filter((_model, at) => at !== index).map(model => ({ ...model })))
   }
 
   const reset = (): void => {
@@ -354,7 +362,7 @@ export function DeepSeekModelsEditor(props: DeepSeekModelsEditorProps): ReactNod
         type="button"
         className={styles['addModelButton']}
         disabled={props.disabled}
-        onClick={() => { props.onChange([...props.models.map(model => ({ ...model })), { id: '' }]) }}
+        onClick={() => { props.onChange([...modelsRef.current.map(model => ({ ...model })), { id: '' }]) }}
       >
         <IconPlusOutline16 size={14} />
         {props.t('addModel')}

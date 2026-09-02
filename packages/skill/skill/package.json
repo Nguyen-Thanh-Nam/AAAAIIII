@@ -1,6 +1,6 @@
 {
   "name": "@pentest-harness/dsh-skill",
-  "description": "Agent skill provider registry for the DeepSeek Harness",
+  "description": "Agent skill provider registry for the Pentest Harness",
   "version": "0.1.1-rc.2",
   "publishConfig": {
     "access": "public"

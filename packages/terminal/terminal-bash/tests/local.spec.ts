@@ -14,6 +14,7 @@ import type { ConfinedArgv, SandboxPolicy } from '@pentest-harness/dsh-sandbox'
 import SandboxPolicyService from '@pentest-harness/dsh-sandbox-policy'
 import LocalSubprocessRuntime from '@pentest-harness/dsh-subprocess-local'
 import { resolvePwshPath } from '@pentest-harness/dsh-pwsh-local/src/resolve.ts'
+import { resolveBashPath } from '@pentest-harness/dsh-bash-local'
 import * as ptyLocal from '@pentest-harness/dsh-terminal-bash'
 
 const roots: string[] = []
@@ -167,7 +168,7 @@ describe.skipIf(process.platform === 'win32')('terminal-bash real shell', () => 
     const { ctx, root, agent, fiber, sandbox } = await harness('workspace-write')
     const created = await ctx.terminals.spawn(agent, { type: 'shell' })
     expect(sandbox.calls).toEqual([{
-      argv: ['/bin/bash', '--noprofile', '--norc', '-i'],
+      argv: [resolveBashPath(), '--noprofile', '--norc', '-i'],
       policy: { mode: 'workspace-write', workspaceRoot: realpathSync.native(root), sessionId: 'agent-workspace-write' },
     }])
     await fiber.dispose()

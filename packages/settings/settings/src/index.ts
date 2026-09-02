@@ -644,6 +644,12 @@ export abstract class SettingsProvider extends Service {
       }
     })
     this.writeQueues.set(ns, run)
+    // The queue would otherwise grow one settled entry per namespace write for
+    // the life of the process. Drop this tail only when it is still the tail:
+    // a newer write chained onto it and owns the slot now.
+    void run.finally(() => {
+      if (this.writeQueues.get(ns) === run) this.writeQueues.delete(ns)
+    })
     return run
   }
 

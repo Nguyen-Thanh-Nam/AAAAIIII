@@ -1,5 +1,5 @@
 /**
- * Fresh-process SDK subagent client. Drives one child DeepSeek Harness
+ * Fresh-process SDK subagent client. Drives one child Pentest Harness
  * runtime over stdio JSON-RPC through `@pentest-harness/dsh-sdk-client` and owns
  * cancellation and quiescent disposal. Structure mirrors the ACP backend
  * (`@pentest-harness/dsh-subagent-acp`): publish after the child handshake,

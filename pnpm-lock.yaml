@@ -7909,6 +7909,9 @@ importers:
 
   packages/terminal/terminal-bash:
     dependencies:
+      '@pentest-harness/dsh-bash-local':
+        specifier: workspace:^
+        version: link:../../shell/bash-local
       '@pentest-harness/dsh-pwsh-local':
         specifier: workspace:^
         version: link:../../shell/pwsh-local

@@ -98,7 +98,7 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // The preset's own composition: its header comment and its system prompt name
   // the preset a model mounts, so the scoped name would send the model after an
   // id no roster reports.
-  { file: 'apps/cli/config/agent-presets/cordis/agent.cordis.yml', upstream: ['cordis'] },
+  { file: 'apps/cli/config/agent-presets/pentest/agent.cordis.yml', upstream: ['pentest'] },
   // The preset-roster loop names the `cordis` preset id, not a package.
   { file: 'apps/cli/tests/windows-shell.spec.ts', upstream: ['cordis'] },
   // GROUP_ORDER holds `packages/<group>/` directory names, not package names.
@@ -145,7 +145,7 @@ interface PostCondition {
 const POSTCONDITIONS: readonly PostCondition[] = [
   { file: 'vendor/cordis/package.json', text: '"name": "@pentest-harness/cordis"', count: 1 },
   { file: 'vendor/hmr/package.json', text: '"name": "@pentest-harness/cordis-plugin-hmr"', count: 1 },
-  { file: 'scripts/cordis-walk.ts', text: '@deepseek-ai\\/cordis', count: 1 },
+  { file: 'scripts/cordis-walk.ts', text: '@pentest-harness\\/cordis', count: 1 },
   { file: 'scripts/cordis-walk.ts', text: '!== \'@pentest-harness/cordis\'', count: 1 },
   { file: 'scripts/gen-scoped-events.ts', text: '=== \'@pentest-harness/cordis\'', count: 1 },
   { file: 'packages/typert/generator/src/analyzer.ts', text: '!== \'@pentest-harness/cordis\'', count: 2 },
@@ -159,8 +159,8 @@ const POSTCONDITIONS: readonly PostCondition[] = [
   // The preset ids in this table are product data, not package names.
   { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', text: '[\'cordis\', \'presetCordisName\'', count: 1 },
   // The preset id the shipped composition documents to its own model.
-  { file: 'apps/cli/config/agent-presets/cordis/agent.cordis.yml', text: 'The `cordis` agent preset', count: 1 },
-  { file: 'apps/cli/config/agent-presets/cordis/agent.cordis.yml', text: 'corrupting the `cordis` preset', count: 1 },
+  { file: 'apps/cli/config/agent-presets/pentest/agent.cordis.yml', text: 'The `pentest` agent preset', count: 1 },
+  { file: 'apps/cli/config/agent-presets/pentest/agent.cordis.yml', text: 'another preset publishing the same name collides', count: 1 },
   { file: 'packages/examples/acp-demo/tests/built-bin.e2e.ts', text: '\'cordis\', \'loader\', \'include\', \'timer\', \'hmr\', \'logger-console\',', count: 1 },
 ]
 
@@ -173,8 +173,8 @@ const EXACT_EDITS: readonly ExactEdit[] = [
   {
     id: 'cordis-walk-merge-head',
     file: 'scripts/cordis-walk.ts',
-    find: 'const MERGE_HEAD = /declare module [\'"](?:cordis|\\.\\/context\\.ts)[\'"]/',
-    replace: 'const MERGE_HEAD = /declare module [\'"](?:@deepseek-ai\\/cordis|\\.\\/context\\.ts)[\'"]/',
+    find: 'const MERGE_HEAD = /declare module [\'"](?:@pentest-harness\\/cordis|\\.\\/context\\.ts)[\'"]/',
+    replace: 'const MERGE_HEAD = /declare module [\'"](?:@pentest-harness\\/cordis|\\.\\/context\\.ts)[\'"]/',
     expect: 1,
   },
   {
@@ -197,21 +197,18 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     expect: 1,
   },
   {
-    // The rescoped name is already covered by the `@pentest-harness/.+` pattern beside it.
+    // The migration landed: every ignoreDependencies array carries only the
+    // `@pentest-harness/.+` pattern — no @cordisjs entry survives in knip.json.
+    // This edit now asserts that no-residue state (four such arrays).
     id: 'knip-logger-console',
     file: 'knip.json',
     find: `      "ignoreDependencies": [
-        "@cordisjs/plugin-logger-console",
         "@pentest-harness/.+"
-      ]
-    },
-    "packages/util/home": {`,
+      ]`,
     replace: `      "ignoreDependencies": [
         "@pentest-harness/.+"
-      ]
-    },
-    "packages/util/home": {`,
-    expect: 1,
+      ]`,
+    expect: 4,
   },
   {
     id: 'knip-bundle-base',
@@ -300,16 +297,20 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     // bundles have always inlined, so it needs their names.
     id: 'client-purity-vendored-libraries',
     file: 'packages/client/tsdown.client.ts',
-    find: '/** Generated descriptor/codec contribution with no shared runtime identity. */',
-    replace: `/**
- * Vendored framework libraries: rescoped into @deepseek-ai, so the gate below
+    find: `/**
+ * Vendored framework libraries: rescoped into @pentest-harness, so the gate below
  * would read them as plugin packages. They carry no cross-plugin runtime
  * identity to share — the framework itself is a requested module-table row
  * (external), while these are ordinary libraries a browser bundle inlines.
  */
-const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
-
-/** Generated descriptor/codec contribution with no shared runtime identity. */`,
+const VENDORED_LIBRARY = /^@pentest-harness\\/(cosmokit|schemastery)(\\/|$)/`,
+    replace: `/**
+ * Vendored framework libraries: rescoped into @pentest-harness, so the gate below
+ * would read them as plugin packages. They carry no cross-plugin runtime
+ * identity to share — the framework itself is a requested module-table row
+ * (external), while these are ordinary libraries a browser bundle inlines.
+ */
+const VENDORED_LIBRARY = /^@pentest-harness\\/(cosmokit|schemastery)(\\/|$)/`,
     expect: 1,
   },
   {
@@ -347,8 +348,8 @@ const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
   {
     id: 'vendoring-cookbook-name-invariant-zh',
     file: 'docs/cookbook/adding-a-vendored-package.zh.md',
-    find: '保留上游的 `name`/`version`/`exports`/`type`',
-    replace: '改写 `name` 的 scope（[映射](../rescope.md)），保留上游的 `version`/`exports`/`type`',
+    find: '改写 `name` 的 scope（[映射](../rescope.zh.md)），保留上游的 `version`/`exports`/`type`',
+    replace: '改写 `name` 的 scope（[映射](../rescope.zh.md)），保留上游的 `version`/`exports`/`type`',
     expect: 1,
   },
   {

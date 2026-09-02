@@ -1,6 +1,6 @@
 {
   "name": "@pentest-harness/dsh-brand",
-  "description": "Type-only Branded<B> nominal-typing primitive for the DeepSeek Harness",
+  "description": "Type-only Branded<B> nominal-typing primitive for the Pentest Harness",
   "version": "0.1.1-rc.2",
   "publishConfig": {
     "access": "public"

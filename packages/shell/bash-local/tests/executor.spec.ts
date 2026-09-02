@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@pentest-harness/cordis'
-import { LocalBashExecutor } from '@pentest-harness/dsh-bash-local'
+import { LocalBashExecutor, candidateBashPaths, resolveBashPath } from '@pentest-harness/dsh-bash-local'
 import LocalSubprocessRuntime from '@pentest-harness/dsh-subprocess-local'
 import { MAX_TIMER_DELAY_MS } from '@pentest-harness/dsh-timeout'
 import type { ShellProcess } from '@pentest-harness/dsh-shell'
@@ -345,5 +345,47 @@ describe('process lifecycle ownership (the subprocess service, not the executor)
     await trapping.done
     expect(trapping.status).toBe('killed')
     expect(trapping.signal).toBe('SIGKILL')
+  })
+})
+
+describe('resolveBashPath and candidateBashPaths (pure, every platform)', () => {
+  it('trusts an explicit configured path verbatim', () => {
+    expect(resolveBashPath('C:\\custom\\bash.exe')).toBe('C:\\custom\\bash.exe')
+    expect(resolveBashPath('bash')).toBe('bash')
+  })
+
+  it('falls through an empty configured path to platform resolution', () => {
+    // No well-known install exists in the fabricated roots, so the fallback is
+    // the bare PATH-resolved `bash`.
+    expect(resolveBashPath('', {
+      PATH: 'P:\\Store',
+      ProgramFiles: 'P:\\no-program-files',
+      SystemRoot: 'S:\\no-windows',
+    }, 'win32')).toBe('bash')
+  })
+
+  it('returns bash on non-Windows platforms regardless of the environment', () => {
+    expect(resolveBashPath(undefined, { ProgramFiles: 'P:\\Program Files' }, 'linux')).toBe('bash')
+    expect(resolveBashPath(undefined, { PATH: 'P:\\Store' }, 'darwin')).toBe('bash')
+  })
+
+  it('uses stable Windows roots when the environment omits both overrides', () => {
+    expect(candidateBashPaths({})).toEqual([
+      join('C:\\Program Files', 'Git', 'bin', 'bash.exe'),
+      join('C:\\Program Files (x86)', 'Git', 'bin', 'bash.exe'),
+      join('C:\\Windows', 'System32', 'bash.exe'),
+    ])
+  })
+
+  it('probes Git-for-Windows installs before PATH entries', () => {
+    const env = {
+      ProgramFiles: 'C:\\Program Files',
+      'ProgramFiles(x86)': 'C:\\Program Files (x86)',
+      SystemRoot: 'C:\\Windows',
+      PATH: 'C:\\Users\\me\\scoop\\shims',
+    }
+    const candidates = candidateBashPaths(env)
+    expect(candidates[0]).toBe(join('C:\\Program Files', 'Git', 'bin', 'bash.exe'))
+    expect(candidates[candidates.length - 1]).toBe(join('C:\\Users\\me\\scoop\\shims', 'bash.exe'))
   })
 })

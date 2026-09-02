@@ -18,6 +18,9 @@
       "path": "../../../vendor/schemastery"
     },
     {
+      "path": "../../shell/bash-local"
+    },
+    {
       "path": "../../shell/pwsh-local"
     },
     {

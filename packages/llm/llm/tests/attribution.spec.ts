@@ -19,7 +19,7 @@ describe('APP_IDENTITY', () => {
 
   it('carries only static public product facts', () => {
     expect(APP_IDENTITY).toEqual({
-      product: 'deepseek-harness',
+      product: 'pentest-harness',
       version: manifest.version,
       url: 'https://github.com/S1N6H/pentest-harness',
     })

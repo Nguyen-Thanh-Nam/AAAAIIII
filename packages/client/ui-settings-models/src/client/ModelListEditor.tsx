@@ -175,6 +175,13 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
   // the abandoned one would render its stored NaN as the literal `NaN`.
   const [editing, setEditing] = useState<ReadonlyMap<string, string>>(new Map())
 
+  // `props.models` is replaced on every keystroke (the parent re-bakes the
+  // array from the draft), so an event firing in the same batch as another
+  // field's edit would map over a stale array and silently drop the other
+  // change. Mutations read the latest rows from this ref instead.
+  const modelsRef = useRef(models)
+  modelsRef.current = models
+
   /** Buffer key for one capacity field; the row half moves when rows do. */
   const bufferKey = (index: number, field: CapacityField): string => `${String(index)}:${field}`
 
@@ -211,7 +218,7 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
   }
 
   const patch = (index: number, next: Record<string, string | number | undefined>): void => {
-    onChange(models.map((model, at) => {
+    onChange(modelsRef.current.map((model, at) => {
       if (at !== index) return model
       // Rebuilt rather than spread over: an emptied optional field has to leave
       // the profile, not be stored as a value its schema would reject.
@@ -428,7 +435,7 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
               title={t('removeModel')}
               disabled={disabled}
               onClick={() => {
-                onChange(models.filter((_model, at) => at !== index))
+                onChange(modelsRef.current.filter((_model, at) => at !== index))
                 // Both stores are keyed by position, so every row after this
                 // one shifts down and would otherwise inherit its neighbour's
                 // state — a different row's capacities popping open, or its
@@ -485,7 +492,7 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
         type="button"
         className={styles['addModelButton']}
         disabled={disabled}
-        onClick={() => { onChange([...models, { id: '' }]) }}
+        onClick={() => { onChange([...modelsRef.current, { id: '' }]) }}
       >
         {t('addModel')}
       </button>
@@ -507,7 +514,7 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
                       title={added ? t('autoAvailableAdded') : t('autoAvailableAdd')}
                       onClick={() => {
                         if (added) return
-                        onChange([...models, adopt(candidate)])
+                        onChange([...modelsRef.current, adopt(candidate)])
                       }}
                     >
                       <span className={styles['autoAvailableId']}>{candidate.id}</span>

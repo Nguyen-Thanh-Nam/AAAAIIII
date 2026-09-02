@@ -455,9 +455,13 @@ describe('ModelsSection', () => {
 
     fireEvent.click(screen.getByText(en.addModel))
     const ids = screen.getAllByLabelText(new RegExp(en.modelId))
-    const names = screen.getAllByLabelText(new RegExp(en.modelName))
     expandRow(3)
     fireEvent.change(ids[2] as HTMLInputElement, { target: { value: 'private-preview' } })
+    // The deepseek card also renders the route's own display-name field with
+    // the same base label but no row number, so match only the numbered row
+    // inputs here — the unanchored pattern would include it and shift every
+    // index by one.
+    const names = screen.getAllByLabelText(new RegExp(`${en.modelName} \\d+`))
     fireEvent.change(names[2] as HTMLInputElement, { target: { value: 'Private Preview' } })
     // Only row 3 is open, so its capacity is addressed by its own label.
     fireEvent.change(screen.getByLabelText(`${en.contextWindow} 3`), { target: { value: '131072' } })
@@ -819,7 +823,7 @@ describe('ModelsSection', () => {
         op: 'set',
         path: ['models'],
         value: [
-          { id: 'deepseek-v4-flash', description: 'Preserved hidden detail' },
+          { id: 'deepseek-v4-flash', name: 'DeepSeek-V4-Flash', description: 'Preserved hidden detail' },
           DEFAULT_DEEPSEEK_MODELS[1],
         ],
       }],

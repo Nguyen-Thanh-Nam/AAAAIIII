@@ -2,6 +2,7 @@
 
 import z from '@pentest-harness/schemastery'
 import { resolvePwshPath } from '@pentest-harness/dsh-pwsh-local'
+import { resolveBashPath } from '@pentest-harness/dsh-bash-local'
 
 /** One supported interactive shell dialect. */
 export type ShellDialect = 'bash' | 'pwsh'
@@ -12,7 +13,7 @@ export interface Config {
   backendType?: string
   /** Interactive shell dialect (default: `bash`); selects the argv/env/startup defaults. */
   shellDialect?: ShellDialect
-  /** Interactive shell executable (default per dialect: `/bin/bash`, or the resolved pwsh). */
+  /** Interactive shell executable (default per dialect: the resolved bash, or the resolved pwsh). */
   shellPath?: string
   /** Shell arguments (default per dialect: bash `--noprofile --norc -i`, pwsh `-NoLogo -NoProfile`). */
   shellArgs?: string[]
@@ -50,8 +51,6 @@ export type ResolvedConfig = Omit<Required<Config>, 'shellDialect' | 'shellPath'
   shellArgs: string[]
 }
 
-/** Bash dialect default executable. */
-export const DEFAULT_BASH_SHELL = '/bin/bash'
 /** Bash dialect default arguments (interactive, profile-free). */
 export const DEFAULT_BASH_ARGS = ['--noprofile', '--norc', '-i']
 /** Pwsh dialect default arguments (interactive host, profile-free). */
@@ -73,7 +72,7 @@ export function resolveConfig(config: Config): ResolvedConfig {
     shellDialect,
     shellPath: config.shellPath !== undefined && config.shellPath.length > 0
       ? config.shellPath
-      : (shellDialect === 'pwsh' ? resolvePwshPath() : DEFAULT_BASH_SHELL),
+      : (shellDialect === 'pwsh' ? resolvePwshPath() : resolveBashPath()),
     shellArgs: config.shellArgs !== undefined && config.shellArgs.length > 0
       ? config.shellArgs
       : (shellDialect === 'pwsh' ? DEFAULT_PWSH_ARGS : DEFAULT_BASH_ARGS),

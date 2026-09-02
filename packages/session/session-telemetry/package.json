@@ -1,6 +1,6 @@
 {
   "name": "@pentest-harness/dsh-session-telemetry",
-  "description": "SessionTelemetryBackend seam for the DeepSeek Harness: session-event capture, projection, redaction, and handoff to a reporting backend",
+  "description": "SessionTelemetryBackend seam for the Pentest Harness: session-event capture, projection, redaction, and handoff to a reporting backend",
   "version": "0.1.1-rc.2",
   "publishConfig": {
     "access": "public"
