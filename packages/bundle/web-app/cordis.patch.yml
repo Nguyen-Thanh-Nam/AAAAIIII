@@ -294,6 +294,9 @@
     - id: ui-trajectory
       name: '@pentest-harness/dsh-client-ui-trajectory'
 
+    - id: ui-workflow
+      name: '@pentest-harness/dsh-client-ui-workflow'
+
 # ── the agent plane moves behind agent presets ─────────────────────────────
 #
 # Every row below composes what ONE agent contributes to the host registries:

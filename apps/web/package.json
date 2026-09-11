@@ -30,6 +30,7 @@
     "@pentest-harness/dsh-client-modules": "workspace:^",
     "@pentest-harness/dsh-client-ui-primitives": "workspace:^",
     "@pentest-harness/dsh-client-ui-slots": "workspace:^",
+    "@pentest-harness/dsh-client-ui-workflow": "workspace:^",
     "@pentest-harness/dsh-client-web": "workspace:^",
     "@pentest-harness/dsh-cmdline": "workspace:^",
     "@pentest-harness/dsh-pwsh-local": "workspace:^",

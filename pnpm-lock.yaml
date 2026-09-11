@@ -373,6 +373,9 @@ importers:
       '@pentest-harness/dsh-client-ui-slots':
         specifier: workspace:^
         version: link:../../packages/client/ui-slots
+      '@pentest-harness/dsh-client-ui-workflow':
+        specifier: workspace:^
+        version: link:../../packages/client/ui-workflow
       '@pentest-harness/dsh-client-web':
         specifier: workspace:^
         version: link:../../packages/client/web
@@ -3111,6 +3114,45 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+
+  packages/client/ui-workflow:
+    devDependencies:
+      '@pentest-harness/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@pentest-harness/dsh-client-locale':
+        specifier: workspace:^
+        version: link:../locale
+      '@pentest-harness/dsh-client-runtime':
+        specifier: workspace:^
+        version: link:../runtime
+      '@pentest-harness/dsh-client-ui-conversation':
+        specifier: workspace:^
+        version: link:../ui-conversation
+      '@pentest-harness/dsh-client-ui-primitives':
+        specifier: workspace:^
+        version: link:../ui-primitives
+      '@pentest-harness/dsh-client-ui-slots':
+        specifier: workspace:^
+        version: link:../ui-slots
+      '@pentest-harness/dsh-client-ui-trajectory':
+        specifier: workspace:^
+        version: link:../ui-trajectory
+      '@pentest-harness/dsh-invariants':
+        specifier: workspace:^
+        version: link:../../runtime-diagnostics/invariants
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
 
   packages/client/ui-workflow-run:
     devDependencies:

@@ -178,6 +178,17 @@
         "tests/**/*.tsx"
       ]
     },
+    "packages/client/ui-workflow": {
+      "entry": [
+        "src/index.ts",
+        "src/client/index.ts"
+      ],
+      "project": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/**/*.tsx"
+      ]
+    },
     "packages/client/ui-layout": {
       "entry": [
         "tests/**/*.spec.ts",
