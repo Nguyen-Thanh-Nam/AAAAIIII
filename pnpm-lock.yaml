@@ -2075,6 +2075,10 @@ importers:
         version: 18.3.1(react@18.3.1)
 
   packages/client/ui-findings:
+    dependencies:
+      clsx:
+        specifier: ^2.0.0
+        version: 2.1.1
     devDependencies:
       '@pentest-harness/cordis':
         specifier: workspace:^
@@ -2091,6 +2095,9 @@ importers:
       '@pentest-harness/dsh-client-ui-conversation':
         specifier: workspace:^
         version: link:../ui-conversation
+      '@pentest-harness/dsh-client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
       '@pentest-harness/dsh-client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots

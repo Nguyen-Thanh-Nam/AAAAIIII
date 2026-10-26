@@ -297,7 +297,7 @@
     - id: ui-workflow
       name: '@pentest-harness/dsh-client-ui-workflow'
 
-    # Findings tab: the session's issues ledger beside Chat / Trajectory /
+    # Issues tab: the session's issues ledger beside Chat / Trajectory /
     # Bounty / Workflow.
     - id: ui-findings
       name: '@pentest-harness/dsh-client-ui-findings'

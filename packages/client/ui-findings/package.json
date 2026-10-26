@@ -1,6 +1,6 @@
 {
   "name": "@pentest-harness/dsh-client-ui-findings",
-  "description": "Findings tab: the folder's findings ledger rendered beside Task / Trajectory / Workflow, with a live count on the tab",
+  "description": "Issues tab: the folder's findings ledger rendered beside Task / Trajectory / Workflow, with a live count on the tab",
   "version": "0.1.0",
   "publishConfig": { "access": "public" },
   "repository": {
@@ -32,6 +32,9 @@
     "watch": "tsdown --watch"
   },
   "license": "MIT",
+  "dependencies": {
+    "clsx": "^2.0.0"
+  },
   "peerDependencies": {
     "@pentest-harness/dsh-api-remotes": "workspace:^",
     "@pentest-harness/dsh-client-locale": "workspace:^",
@@ -40,6 +43,7 @@
     "@pentest-harness/cordis": "workspace:^"
   },
   "devDependencies": {
+    "@pentest-harness/dsh-client-ui-primitives": "workspace:*",
     "@pentest-harness/dsh-api-remotes": "workspace:^",
     "@pentest-harness/dsh-client-locale": "workspace:^",
     "@pentest-harness/dsh-client-runtime": "workspace:^",

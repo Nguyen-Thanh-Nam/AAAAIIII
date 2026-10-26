@@ -11,7 +11,9 @@
  * finding.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
+import clsx from 'clsx'
 import type React from 'react'
+import { IconFolderClose16 } from '@pentest-harness/dsh-client-ui-primitives'
 import type { PropsLocale, PropsRuntime } from '@pentest-harness/dsh-client-ui-slots'
 import type { FindingsScope, FindingSeverity, FindingStatus, FindingView, SessionId } from '@pentest-harness/dsh-api-remotes/client'
 import { NS } from './locales.ts'
@@ -369,11 +371,20 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
       <div className={css.pageHead}>
         <div className={css.heading}>
           <h2 className={css.pageTitle}>{t('issues.title')}</h2>
-          <p className={css.subtitle}>
-            {state.scope === undefined
-              ? t('issues.subtitle')
-              : t(state.scope.kind === 'workspace' ? 'issues.subtitle.workspace' : 'issues.subtitle.session', { label: state.scope.label })}
-          </p>
+          {state.scope !== undefined && state.scope.kind === 'workspace'
+            ? (
+              <p className={clsx(css.subtitle, css.scope)}>
+                <IconFolderClose16 size={14} className={css.scopeIcon} />
+                <span className={css.scopePath}>/{state.scope.label}</span>
+              </p>
+            )
+            : (
+              <p className={css.subtitle}>
+                {state.scope === undefined
+                  ? t('issues.subtitle')
+                  : t('issues.subtitle.session')}
+              </p>
+            )}
         </div>
         <div className={css.headerActions}>
           {selected.size > 0 && <span className={css.selected}>{t('issues.selected', { n: selected.size })}</span>}

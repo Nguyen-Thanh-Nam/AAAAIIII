@@ -40,6 +40,29 @@
   color: var(--dsw-alias-label-tertiary);
 }
 
+/* The folder this table reports on: the same glyph-plus-path a file browser
+   would show, so the scope is read as a location rather than a sentence. */
+.scope {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.scopeIcon {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.scopePath {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .headerActions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 .selected { font-size: 11px; color: var(--dsw-alias-label-caption); }
