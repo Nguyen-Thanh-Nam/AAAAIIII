@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 /**
- * `<html lang>` tracks the active locale.
+ * `<html lang>` states the active locale.
  *
- * The served markup declares one language, but the resolved locale may differ
- * (browser detection, or a stored Host preference adopted after activation),
- * and it changes again whenever the user switches. Assistive technology and
- * browser features read this attribute, so a stale value misreports the
- * document language rather than merely looking untidy.
+ * The served markup declares a language of its own choosing, and the resolved
+ * locale may differ from it (a stored Host preference adopted after
+ * activation). Assistive technology and browser features read this attribute,
+ * so a stale value misreports the document language rather than merely looking
+ * untidy. One locale ships, so the attribute is stated once at activation.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@pentest-harness/cordis'
@@ -52,9 +52,9 @@ const langOf = (): string => document.documentElement.lang
 
 describe('document language', () => {
   beforeEach(() => {
-    // The served markup declares the product default; the plugin must not
-    // depend on that value already being correct.
-    document.documentElement.lang = 'en'
+    // A stale tag from the two-locale era: the plugin must not depend on the
+    // served markup already saying the right thing.
+    document.documentElement.lang = 'zh-CN'
     Object.defineProperty(navigator, 'languages', { value: ['zh-CN'], configurable: true })
     Object.defineProperty(navigator, 'language', { value: 'zh-CN', configurable: true })
   })
@@ -67,28 +67,20 @@ describe('document language', () => {
     delete own.language
   })
 
-  it('states the resolved locale at activation, not the value the markup shipped', async () => {
-    // A Chinese browser resolves zh even though the markup said en.
+  it('states the shipped locale at activation, not the value the markup shipped', async () => {
+    // The browser asks for a language this build no longer ships; the document
+    // must still describe the copy it actually renders.
     const { locale } = await bench()
-    expect(locale.getLocale().active).toBe('zh')
-    expect(langOf()).toBe('zh-CN')
-  })
-
-  it('follows a locale switch in both directions with BCP 47 tags', async () => {
-    const { locale } = await bench()
-    expect(langOf()).toBe('zh-CN')
-    locale.setLocale('en')
-    // `en` needs no region; `zh` names its script variant, which bare `zh`
-    // leaves ambiguous for pronunciation and font selection.
+    expect(locale.getLocale().active).toBe('en')
     expect(langOf()).toBe('en')
-    locale.setLocale('zh')
-    expect(langOf()).toBe('zh-CN')
   })
 
-  it('follows an explicit Host preference that overrides browser detection', async () => {
-    // Stored preference wins over the zh browser pinned above.
+  it('states an adopted Host preference at activation', async () => {
     const { locale } = await bench('en')
     await vi.waitFor(() => { expect(locale.getLocale().active).toBe('en') })
-    await vi.waitFor(() => { expect(langOf()).toBe('en') })
+    expect(langOf()).toBe('en')
   })
+
+  // The no-document arm is pinned where the client tree boots without a DOM:
+  // apply.client.spec.ts runs in the node environment.
 })

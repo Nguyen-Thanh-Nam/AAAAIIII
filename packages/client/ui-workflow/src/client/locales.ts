@@ -23,22 +23,7 @@ declare module '@pentest-harness/dsh-client-ui-slots' {
   }
 }
 
-export const zh: Record<WorkflowKey, string> = {
-  'view.workflow': '工作流',
-  'workflow.kicker': '实时工作流',
-  'workflow.title': 'Agent 运行轨迹',
-  'workflow.idle': '等待新的运行…',
-  'workflow.tool.pending': '排队中',
-  'workflow.tool.running': '运行中',
-  'workflow.tool.done': '完成',
-  'workflow.tool.failed': '失败',
-  'workflow.turn': '轮次 {n}',
-  'workflow.step': '步骤 {n}',
-  'workflow.tools': '{n} 个工具调用',
-  'workflow.noTools': '尚无工具调用',
-}
-
-export const en: Record<WorkflowKey, string> = {
+export const en = {
   'view.workflow': 'Workflow',
   'workflow.kicker': 'LIVE WORKFLOW',
   'workflow.title': 'Agent Run',

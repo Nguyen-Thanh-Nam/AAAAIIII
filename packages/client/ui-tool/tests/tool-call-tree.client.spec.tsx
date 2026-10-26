@@ -5,14 +5,14 @@ import { cleanup, render } from '@testing-library/react'
 import type { HostDescription } from '@pentest-harness/dsh-client-connection/client'
 import type { ConversationSnapshot, ToolResultNode } from '@pentest-harness/dsh-client-runtime/client'
 import { makeTranslate } from '@pentest-harness/dsh-client-test-runtime'
-import { zh as commonZh } from '@pentest-harness/dsh-client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@pentest-harness/dsh-client-locale/src/locales/index.ts'
 import type { ToolTreeProps } from '../src/client/contract/slots.ts'
 import { ToolCallTree } from '../src/client/tool/ToolCallTree.tsx'
-import { zh } from '@pentest-harness/dsh-client-ui-conversation/src/client/locales.ts'
+import { en } from '@pentest-harness/dsh-client-ui-conversation/src/client/locales.ts'
 
 afterEach(cleanup)
 
-const t: ToolTreeProps['t'] = makeTranslate(zh, commonZh)
+const t: ToolTreeProps['t'] = makeTranslate(en, commonEn)
 
 const root = (callId: string, call: ToolResultNode['call']): ToolResultNode => ({
   kind: 'tool-result', seq: 3, time: 3_000, callId, call, callTime: 2_000,

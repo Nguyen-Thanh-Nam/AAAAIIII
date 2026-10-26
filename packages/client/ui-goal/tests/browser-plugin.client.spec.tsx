@@ -19,11 +19,11 @@ import { ConversationEventRegistry } from '@pentest-harness/dsh-client-runtime/s
 import type { GoalProjection } from '@pentest-harness/dsh-goal/client'
 import { LocaleRuntime } from '@pentest-harness/dsh-client-locale/client'
 import { makeTranslate } from '@pentest-harness/dsh-client-test-runtime'
-import { zh as commonZh } from '@pentest-harness/dsh-client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@pentest-harness/dsh-client-locale/src/locales/index.ts'
 import type { GoalBarActions } from '../src/client/slots.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { GoalDock } from '../src/client/GoalBar.tsx'
-import { zh } from '../src/client/locales.ts'
+import { en } from '../src/client/locales.ts'
 import { apply as nodeApply } from '../src/index.ts'
 
 afterEach(cleanup)
@@ -217,7 +217,7 @@ describe('GoalDock adapter', () => {
       onResume: () => Promise.resolve({ ok: true, value: undefined }),
       onClear: () => Promise.resolve({ ok: true, value: undefined }),
     }
-    const t = makeTranslate(zh, commonZh)
+    const t = makeTranslate(en, commonEn)
     const dockProps = (up: () => GoalProjection | null | undefined) =>
       ({ useProjection: up, ...actions, t }) as unknown as Parameters<typeof GoalDock>[0]
     const shown = render(<GoalDock {...dockProps(useProjection)} />)

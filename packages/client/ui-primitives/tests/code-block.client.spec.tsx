@@ -41,6 +41,8 @@ describe('highlightToHtml', () => {
     'xml', 'lua',
   ]
 
+  // 23 grammars arrive through dynamic imports at a transform pool the other
+  // spec files share, so the test budget is wider than the default 5s.
   it('lazily loads every read-card grammar: plain first, highlighted after load', async () => {
     // First touch returns the plain fallback (undefined) and starts the import.
     for (const alias of LAZY_ALIASES) expect(highlightToHtml('x', alias)).toBeUndefined()
@@ -48,7 +50,7 @@ describe('highlightToHtml', () => {
     await vi.waitFor(() => {
       for (const alias of LAZY_ALIASES) expect(highlightToHtml('x', alias)).toContain('shiki')
     }, { timeout: 5_000 })
-  })
+  }, 20_000)
 })
 
 describe('CodeBlock', () => {
@@ -81,18 +83,18 @@ describe('CodeBlock', () => {
     })
     render(<CodeBlock code={'const a = 1\n'} lang="ts" />)
     expect(screen.getByText('ts')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: '复制' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
     expect(writeText).toHaveBeenCalledWith('const a = 1')
     // Flush the clipboard promise under fake timers before asserting the label.
     await act(async () => {
       await Promise.resolve()
     })
-    expect(screen.getByRole('button', { name: '复制成功' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Copied' })).toBeTruthy()
     // While the ok label is showing, further clicks are no-ops.
-    fireEvent.click(screen.getByRole('button', { name: '复制成功' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copied' }))
     expect(writeText).toHaveBeenCalledTimes(1)
     await vi.advanceTimersByTimeAsync(1000)
-    expect(screen.getByRole('button', { name: '复制' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeTruthy()
   })
 
   it('does not claim success when clipboard.writeText rejects', async () => {
@@ -102,12 +104,12 @@ describe('CodeBlock', () => {
       value: { writeText },
     })
     render(<CodeBlock code="plain body" />)
-    fireEvent.click(screen.getByRole('button', { name: '复制' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
     await act(async () => {
       await Promise.resolve()
     })
-    expect(screen.getByRole('button', { name: '复制' })).toBeTruthy()
-    expect(screen.queryByRole('button', { name: '复制成功' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Copied' })).toBeNull()
   })
 
   it('falls back to execCommand when clipboard.writeText is unavailable', async () => {
@@ -121,9 +123,9 @@ describe('CodeBlock', () => {
       value: exec,
     })
     render(<CodeBlock code="plain body" />)
-    fireEvent.click(screen.getByRole('button', { name: '复制' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
     expect(exec).toHaveBeenCalledWith('copy')
-    expect(await screen.findByRole('button', { name: '复制成功' })).toBeTruthy()
+    expect(await screen.findByRole('button', { name: 'Copied' })).toBeTruthy()
   })
 
   it('does not claim success when execCommand throws or is absent', async () => {
@@ -138,9 +140,9 @@ describe('CodeBlock', () => {
       },
     })
     const denied = render(<CodeBlock code="plain body" />)
-    fireEvent.click(denied.getByRole('button', { name: '复制' }))
+    fireEvent.click(denied.getByRole('button', { name: 'Copy' }))
     await Promise.resolve()
-    expect(denied.getByRole('button', { name: '复制' })).toBeTruthy()
+    expect(denied.getByRole('button', { name: 'Copy' })).toBeTruthy()
     denied.unmount()
 
     Object.defineProperty(document, 'execCommand', {
@@ -148,9 +150,9 @@ describe('CodeBlock', () => {
       value: undefined,
     })
     const absent = render(<CodeBlock code="plain body" />)
-    fireEvent.click(absent.getByRole('button', { name: '复制' }))
+    fireEvent.click(absent.getByRole('button', { name: 'Copy' }))
     await Promise.resolve()
-    expect(absent.getByRole('button', { name: '复制' })).toBeTruthy()
-    expect(absent.queryByRole('button', { name: '复制成功' })).toBeNull()
+    expect(absent.getByRole('button', { name: 'Copy' })).toBeTruthy()
+    expect(absent.queryByRole('button', { name: 'Copied' })).toBeNull()
   })
 })

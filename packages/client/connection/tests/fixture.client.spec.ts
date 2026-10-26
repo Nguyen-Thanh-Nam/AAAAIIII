@@ -287,7 +287,7 @@ describe('createFixtureApi', () => {
     expect(list.result.value.items.some(s => s.sessionId === createdId)).toBe(true)
   })
 
-  it('prompt replays a full streamed turn and cancel mid-replay freezes with (已中断)', async () => {
+  it('prompt replays a full streamed turn and cancel mid-replay freezes with (interrupted)', async () => {
     const api = createFixtureApi()
     const created = await api.sessions.create(req({}))
     if (!created.result.ok) throw new Error('create failed')
@@ -629,7 +629,7 @@ describe('createFixtureApi', () => {
       const frames: MuxFrame[] = []
       for await (const envelope of api.events.mux(req({}), abort.signal)) {
         frames.push(envelope.payload)
-        if (frames.some(f => f.type === 'session/projection' && f.key === 'title' && f.value === '重命名')) abort.abort()
+        if (frames.some(f => f.type === 'session/projection' && f.key === 'title' && f.value === 'Rename')) abort.abort()
       }
       return frames
     })()
@@ -641,9 +641,9 @@ describe('createFixtureApi', () => {
     const blank = await api.sessions.rename(req({ sessionId: sid('fx-alpha'), title: '   ' }))
     expect(blank.result).toMatchObject({ ok: false, error: { code: 'title-invalid', details: { sessionId: 'fx-alpha' } } })
 
-    const renamed = await api.sessions.rename(req({ sessionId: sid('fx-alpha'), title: '  重命名  ' }))
+    const renamed = await api.sessions.rename(req({ sessionId: sid('fx-alpha'), title: '  Rename  ' }))
     if (!renamed.result.ok) throw new Error('rename failed')
-    expect(renamed.result.value.title).toBe('重命名')
+    expect(renamed.result.value.title).toBe('Rename')
     const acceptedSeq = renamed.result.value.seq
     // The response seq addresses the appended title event (the client plane
     // has no session/title in its event union — titles ride the projection —
@@ -653,12 +653,12 @@ describe('createFixtureApi', () => {
     const appended = history.result.value.events.find(entry => entry.event.seq === acceptedSeq)
     expect(appended?.event).toMatchObject({
       type: 'session/title',
-      data: { title: '重命名', messageSeqs: [], source: { kind: 'user' } },
+      data: { title: 'Rename', messageSeqs: [], source: { kind: 'user' } },
     })
     // Beyond the subscribe-time baseline replay, the append emitted exactly
     // one title projection frame carrying the new value at the response seq.
     const frames = await framesPromise
-    const titleFrames = frames.filter(f => f.type === 'session/projection' && f.key === 'title' && f.sessionId === sid('fx-alpha') && f.value === '重命名')
+    const titleFrames = frames.filter(f => f.type === 'session/projection' && f.key === 'title' && f.sessionId === sid('fx-alpha') && f.value === 'Rename')
     expect(titleFrames).toHaveLength(1)
     expect(titleFrames[0]).toMatchObject({ seq: acceptedSeq })
   })

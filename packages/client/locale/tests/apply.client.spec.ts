@@ -1,18 +1,17 @@
-/** locale apply wiring: service + dictionaries provision, declaration-aware
- * Language row registration, snapshot projection into the row store, and
- * recovery after an HMR collapse of the declaring entry. */
+/** locale apply wiring: the service + English dictionaries are provisioned and
+ * the Language row stays out of the settings surface — one shipped locale
+ * leaves nothing to choose, so the guard registers no row in any lifecycle
+ * order. */
 import { Context } from '@pentest-harness/cordis'
 import { describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@pentest-harness/dsh-client-runtime/client'
 import { apply as settingsApply, inject as settingsInject } from '@pentest-harness/dsh-client-ui-settings/client'
 import { TestRemote } from '@pentest-harness/dsh-client-test-runtime'
 import {
-  apply, inject, SETTINGS_NS,
+  apply, COMMON_NS, inject, SETTINGS_NS,
 } from '@pentest-harness/dsh-client-locale/client'
-import type { LanguageRowInjected, LocaleRuntime } from '@pentest-harness/dsh-client-locale/client'
+import type { LocaleRuntime } from '@pentest-harness/dsh-client-locale/client'
 import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '../src/locale-settings.ts'
-import { LanguageRow } from '../src/client/LanguageRow.tsx'
-import type { createLanguageRowStore } from '../src/client/settings-store.ts'
 
 const SLOT = 'settings.general.item'
 
@@ -62,127 +61,101 @@ function declareItems(slots: SlotRegistry): () => void {
   )
 }
 
-/** Mirror the framework's inject choreography: bake a real instance from the
- * declared handle and hand its actions to the entry's inject factory. */
-function faceOf(slots: SlotRegistry) {
-  const entry = slots.entries(SLOT).find(e => e.component === LanguageRow)!
-  const handle = entry.store as ReturnType<typeof createLanguageRowStore>
-  const instance = handle.create()
-  const face = (entry.inject as unknown as (a: typeof instance.actions) => LanguageRowInjected)(instance.actions)
-  return { entry, instance, face }
-}
-
 describe('locale apply', () => {
   // These are wiring specs, not default-language specs. A fresh LocaleRuntime
   // with no jsdom `window` skips browser detection and opens on FALLBACK_LOCALE
-  // (en); each test that reads localized copy stages its locale explicitly via
-  // setLocale/Host preference instead of leaning on a dead browser pin.
+  // (en); the specs below therefore assert the shipped English copy directly.
 
   it('declares the slot service', () => {
     expect(inject).toEqual(['slots', 'connection', 'remote', 'settingsScope'])
   })
 
-  it('provides the service with base + settings dictionaries and registers the row (declaration before or after apply)', async () => {
+  it('provides the service seeded with the English dictionaries', async () => {
+    const b = await bench()
+    declareItems(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const locale = b.ctx.get('locale') as LocaleRuntime
+    // Both base namespaces are occupied for the shipped locale.
+    expect(() => locale.register(COMMON_NS, 'en', {})).toThrow('already has locale')
+    expect(() => locale.register(SETTINGS_NS, 'en', {})).toThrow('already has locale')
+    // The seat of a locale this build does not ship stays free.
+    expect(() => { locale.register(COMMON_NS, 'zh', {})() }).not.toThrow()
+    // The seeded dictionaries are the shipped English ones.
+    expect(locale.bind(COMMON_NS)('ok')).toBe('OK')
+    expect(locale.bind(SETTINGS_NS)('language.title')).toBe('Language')
+  })
+
+  it('registers no Language row although the General item slot is declared', async () => {
+    // Declaration before apply: the guard is evaluated with the slot already
+    // standing, so an absent row is a decision rather than a missed cascade.
     const before = await bench()
     declareItems(before.slots)
     await before.ctx.plugin({ inject: [...inject], apply }).await()
-    const locale = before.ctx.get('locale') as LocaleRuntime
-    // Base dictionaries are registered: the (ns, locale) seats are occupied.
-    expect(() => locale.register('common', 'zh', {})).toThrow('already has locale')
-    expect(() => locale.register('common', 'en', {})).toThrow('already has locale')
-    // The lane has no jsdom `window`, so detection never runs and a fresh
-    // service opens on FALLBACK_LOCALE (en); read the zh side explicitly.
-    locale.setLocale('zh')
-    expect(locale.bind(SETTINGS_NS)('language.title')).toBe('语言')
-    const entry = before.slots.entries(SLOT).find(e => e.component === LanguageRow)!
-    expect(entry.options).toMatchObject({ id: 'language', order: 0 })
+    expect(before.slots.entries(SLOT)).toEqual([])
 
+    // Declaration after apply must not resurrect it through the recovery path.
     const after = await bench()
-    const fiber = after.ctx.plugin({ inject: [...inject], apply })
-    await fiber.await()
-    expect(after.slots.entries(SLOT)).toHaveLength(0)
+    await after.ctx.plugin({ inject: [...inject], apply }).await()
+    expect(after.slots.entries(SLOT)).toEqual([])
     declareItems(after.slots)
     await Promise.resolve()
-    expect(after.slots.entries(SLOT).some(e => e.component === LanguageRow)).toBe(true)
+    expect(after.slots.entries(SLOT)).toEqual([])
   })
 
-  it('projects service snapshots into the row store and routes face writes back', async () => {
-    const b = await bench()
-    declareItems(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const locale = b.ctx.get('locale') as LocaleRuntime
-    // An event ahead of any inject hits the unbound-actions arm.
-    locale.setLocale('en')
-
-    const { entry, instance, face } = faceOf(b.slots)
-    // The inject-time re-sync sealed the init window: the mirror is current.
-    expect(instance.getSnapshot().active).toBe('en')
-    expect(instance.getSnapshot().options.map(o => o.id)).toEqual(['zh', 'en'])
-    // Copy rides the standard locale seat: the entry declares the namespace.
-    expect(entry.locale).toBe(SETTINGS_NS)
-    expect(locale.bind(SETTINGS_NS)('language.title')).toBe('Language')
-
-    face.setLocale('zh')
-    expect(locale.getLocale().active).toBe('zh')
-    expect(instance.getSnapshot().active).toBe('zh')
-    expect(locale.bind(SETTINGS_NS)('language.title')).toBe('语言')
-    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(2) })
-  })
-
-  it('loads and refreshes the explicit Host preference after nonblocking activation', async () => {
+  it('loads and re-reads the explicit Host preference; the shipped locale stands either way', async () => {
     const b = await bench()
     // The shared mirror read once at bench time; a Host-side change reaches it
     // through the document invalidation, exactly as production announces one.
-    // Preference must differ from the provisional locale (FALLBACK_LOCALE = en
-    // with no window), or clearing it below would be unobservable.
-    b.setHostPreference('zh')
+    b.setHostPreference('en')
     b.ctx.remote.$dispatch('settings/document-updated', [LOCALE_SETTINGS_NAMESPACE, 0])
     declareItems(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
     const locale = b.ctx.get('locale') as LocaleRuntime
-    await vi.waitFor(() => { expect(locale.getLocale().active).toBe('zh') })
-    // Cleared preference falls back to the provisional locale.
+    await vi.waitFor(() => { expect(locale.getLocale().active).toBe('en') })
+    // Clearing the preference falls back to the browser-derived locale, which
+    // resolves to the same shipped locale.
     b.setHostPreference(undefined)
     b.ctx.remote.$dispatch('settings/document-updated', [LOCALE_SETTINGS_NAMESPACE, 0])
     await vi.waitFor(() => { expect(locale.getLocale().active).toBe('en') })
-    // Re-selecting zh after the clear is an explicit pick of the provisional
-    // value and must persist as a written preference.
-    b.setHostPreference('zh')
-    b.ctx.remote.$dispatch('settings/document-updated', [LOCALE_SETTINGS_NAMESPACE, 0])
-    await vi.waitFor(() => { expect(locale.getLocale().active).toBe('zh') })
-    expect(b.describe).toHaveBeenCalledTimes(4)
+    // Re-selecting the shipped locale is an explicit pick and must be written.
+    locale.setLocale('en')
+    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(1) })
+    expect(locale.getLocale().active).toBe('en')
+    // One read per announcement the sitting scope can see: activation and the
+    // two invalidations above (the bench-time dispatch preceded the scope).
+    await vi.waitFor(() => { expect(b.describe).toHaveBeenCalledTimes(3) })
   })
 
-  it('recovers after an HMR collapse of the declaring entry (stale disposer must not block)', async () => {
+  it('keeps the row out across a declaration collapse and redeclaration', async () => {
     const b = await bench()
     const host = declareItems(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    expect(b.slots.entries(SLOT)).toHaveLength(1)
+    expect(b.slots.entries(SLOT)).toEqual([])
 
-    // Collapse: the declarer dies, the cascade removes our entry while the
-    // apply closure still holds its (now stale) disposer.
+    // Collapse: the declarer dies and the cascade removes every contribution
+    // into the slot. A guard that had registered instead would re-run here.
     host()
-    expect(b.slots.entries(SLOT)).toHaveLength(0)
+    expect(b.slots.entries(SLOT)).toEqual([])
 
     declareItems(b.slots)
     await Promise.resolve()
-    expect(b.slots.entries(SLOT).some(e => e.component === LanguageRow)).toBe(true)
+    expect(b.slots.entries(SLOT)).toEqual([])
   })
 
-  it('teardown removes the row; teardown without a declaration is quiet', async () => {
+  it('teardown leaves the slot ledger empty; teardown without a declaration is quiet', async () => {
     const b = await bench()
     declareItems(b.slots)
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
-    expect(b.slots.entries(SLOT)).toHaveLength(1)
+    expect(b.slots.entries(SLOT)).toEqual([])
     await fiber.dispose()
-    expect(b.slots.entries(SLOT)).toHaveLength(0)
+    expect(b.slots.entries(SLOT)).toEqual([])
 
-    // Never-declared bench: the effect disposer's dispose arm stays undefined.
+    // Never-declared bench: the plugin disposes before any declaration exists.
     const quiet = await bench()
     const f2 = quiet.ctx.plugin({ inject: [...inject], apply })
     await f2.await()
     await f2.dispose()
-    expect(quiet.slots.entries(SLOT)).toHaveLength(0)
+    expect(quiet.slots.entries(SLOT)).toEqual([])
   })
 })

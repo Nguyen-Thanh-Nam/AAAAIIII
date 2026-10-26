@@ -10,7 +10,6 @@ export type IssuesKey =
   | 'issues.scope.folder'
   | 'issues.scope.task'
   | 'issues.group.label'
-  | 'issues.subtitle.workspace'
   | 'issues.subtitle.session'
   | 'issues.loading'
   | 'issues.empty'
@@ -68,75 +67,14 @@ declare module '@pentest-harness/dsh-client-ui-slots' {
   }
 }
 
-export const zh: Record<IssuesKey, string> = {
-  'view.issues': '漏洞',
-  'issues.title': '漏洞',
-  'issues.count': '{n} 个问题',
-  'issues.scope.label': '范围',
-  'issues.scope.folder': '文件夹',
-  'issues.scope.task': '任务',
-  'issues.group.label': '分组',
-  'issues.subtitle.workspace': '「{label}」文件夹中的漏洞',
-  'issues.subtitle.session': '本任务的漏洞',
-  'issues.loading': '正在读取问题清单…',
-  'issues.empty': '这里还没有记录问题。运行一次检查后，问题会出现在这里。',
-  'issues.error': '读取问题清单失败：{message}',
-  'issues.search': '搜索标题、目标…',
-  'issues.filter.all': '全部',
-  'issues.severity': '严重程度',
-  'issues.status': '状态',
-  'issues.target': '目标',
-  'issues.createdBy': '创建者',
-  'issues.lastActivity': '最近活动',
-  'issues.verified': '已复现',
-  'issues.status.new': '新建',
-  'issues.status.confirmed': '已确认',
-  'issues.status.false_positive': '误报',
-  'issues.status.duplicate': '重复',
-  'issues.status.fixed': '已修复',
-  'issues.status.wontfix': '不修复',
-  'issues.severity.critical': '严重',
-  'issues.severity.high': '高',
-  'issues.severity.medium': '中',
-  'issues.severity.low': '低',
-  'issues.severity.info': '信息',
-  'issues.justNow': '刚刚',
-  'issues.minutesAgo': '{n} 分钟前',
-  'issues.hoursAgo': '{n} 小时前',
-  'issues.daysAgo': '{n} 天前',
-  'issues.download': '导出为 CSV',
-  'issues.selected': '已选 {n} 项',
-  'issues.selectAll': '选择本页全部',
-  'issues.perPage': '每页',
-  'issues.range': '{from}–{to}，共 {total} 项',
-  'issues.previous': '上一页',
-  'issues.next': '下一页',
-  'issues.noMatch': '没有符合筛选条件的问题。',
-  'issues.subtitle': '跨任务汇总的漏洞',
-  'issues.total': '问题总数',
-  'issues.pending': '待处理',
-  'issues.assets': '资产',
-  'issues.type': '全部类型',
-  'issues.sort': '排序',
-  'issues.sort.severity': '按严重程度',
-  'issues.sort.time': '最新优先',
-  'issues.actions': '操作',
-  'issues.copyId': '复制编号',
-  'issues.copied': '已复制',
-  'issues.tab.all': '全部',
-  'issues.tab.byAsset': '按资产',
-  'issues.vulnName': '漏洞名称',
-}
-
-export const en: Record<IssuesKey, string> = {
-  'view.issues': 'Findings',
-  'issues.title': 'Findings',
+export const en = {
+  'view.issues': 'Issues',
+  'issues.title': 'Issues',
   'issues.count': '{n} issues',
   'issues.scope.label': 'Scope',
   'issues.scope.folder': 'Folder',
   'issues.scope.task': 'Task',
   'issues.group.label': 'Group',
-  'issues.subtitle.workspace': 'Vulnerabilities in “{label}”',
   'issues.subtitle.session': 'Vulnerabilities in this task',
   'issues.loading': 'Loading findings…',
   'issues.empty': 'No findings recorded here yet. Run a check and they appear here.',

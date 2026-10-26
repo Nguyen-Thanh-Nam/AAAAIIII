@@ -319,7 +319,7 @@ describe('live event path', () => {
     frames.shift()!(0)
     expect(published).toEqual([[0, 1, 2, 3, 4, 5, 6, 7, 8]])
 
-    feed(ev.chunkText(9, 1, '完成'))
+    feed(ev.chunkText(9, 1, 'done'))
     feed(ev.assistant(10, 1, '累计完成'))
     await Promise.resolve()
     expect(published).toEqual([
@@ -1010,7 +1010,7 @@ describe('reference stability (the memo contract)', () => {
     const resolved = session.getSnapshot()
     expect(resolved.pending).toBe(after.pending)
     expect(resolved.chat.nodes.get(settledKey)).toBe(settledNode)
-    feed(ev.assistant(12, 1, '完成'))
+    feed(ev.assistant(12, 1, 'done'))
     expect(session.getSnapshot()).not.toBe(resolved)
   })
 })

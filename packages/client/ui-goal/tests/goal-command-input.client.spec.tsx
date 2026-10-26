@@ -7,7 +7,7 @@ import type {
 } from '@pentest-harness/dsh-client-runtime/client'
 import { ConversationNodeAssembler } from '@pentest-harness/dsh-client-runtime/client'
 import { makeTranslate } from '@pentest-harness/dsh-client-test-runtime'
-import { zh as commonZh } from '@pentest-harness/dsh-client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@pentest-harness/dsh-client-locale/src/locales/index.ts'
 import type { SessionEvent } from '@pentest-harness/dsh-session/types'
 import { commandDefinition } from '@pentest-harness/dsh-client-ui-conversation/src/client/conversation-nodes/command.ts'
 import { chatViewDefinition } from '@pentest-harness/dsh-client-ui-conversation/src/client/conversation-nodes/chat-snapshot-builder.ts'
@@ -15,7 +15,7 @@ import { GoalCommandInputView } from '../src/client/GoalCommandInputView.tsx'
 import {
   goalCommandInputDefinition, goalCommandText,
 } from '../src/client/goal-command-input.ts'
-import { zh } from '../src/client/locales.ts'
+import { en } from '../src/client/locales.ts'
 
 afterEach(cleanup)
 
@@ -117,7 +117,7 @@ describe('goal command input projection', () => {
   })
 
   it('renders the user-style command bubble without ordinary message actions', () => {
-    const t = makeTranslate(zh, commonZh)
+    const t = makeTranslate(en, commonEn)
     const props = {
       node: {
         key: 'goal-command-input:one',
@@ -126,7 +126,7 @@ describe('goal command input projection', () => {
       t,
     } as unknown as Parameters<typeof GoalCommandInputView>[0]
     const view = render(<GoalCommandInputView {...props} />)
-    const bubble = view.getByRole('group', { name: '命令输入' })
+    const bubble = view.getByRole('group', { name: 'Command input' })
 
     expect(bubble.textContent).toBe('/goal ship it')
     expect(within(bubble).queryByRole('button')).toBeNull()

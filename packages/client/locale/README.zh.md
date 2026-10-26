@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文
 
-locale 插件：LocaleRuntime——`zh`／`en` 偏好以 `locale.preference` 存储在 `$DSH_HOME/settings.yaml` 中；若没有显式 Host 值，全新浏览器会暂时使用 `navigator` 请求的语言（按主子标签匹配；若其请求的语言本应用都不提供，则使用 `en`）。Host 读取在插件激活后执行，因此 settings 服务不可用不会阻塞页面；读取结果会实时替换浏览器暂定值。settings API 仅限回环请求，因此远程浏览器的选择仅保留在进程内。`locale/change` 仅在切换语言时触发；插件会在激活时以及每次切换时把 `<html lang>` 指向当前 locale（`zh-CN`／`en`）。该服务还拥有 ns×locale 字典注册表（类型化 `register(ns, {zh, en})` 按 `LocaleNamespaceMap` 校验，`bind(ns)`→`TranslateNS<ns>`；查找链 ns → common → en → key），实现 slot 系统的 `LocaleFace`，并经 `ctx.slots.installLocale` 自行安装，支撑框架注入的 `t` 标准席位（`Translate`／`TranslateNS` 是 ui-slots 的类型；请从那里导入——本包的再导出仅为字典所有者提供便利）。该持久化边界由[Host settings 支撑的偏好决策](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.zh.md)拥有。
+locale 插件：LocaleRuntime——GUI 只发布一种语言，即 `LOCALE_IDS` 声明的 `en`；`$DSH_HOME/settings.yaml` 中的 `locale.preference` 仅当它指向已发布语言时才被采纳，其他值会让运行时保持在该语言。Host 读取在插件激活后执行，因此 settings 服务不可用不会阻塞页面。远程浏览器只保留进程内选择，因为 settings API 仅限本机。`locale/change` 在切换时触发，插件在激活时和每次切换时把 `<html lang>` 指向当前语言（`en`）；只有发布多种语言时才会注册语言设置行。该服务同时拥有“命名空间×语言”的字典注册表（带类型的 `register(ns, {en})` 会按 `LocaleNamespaceMap` 校验，`bind(ns)`→`TranslateNS<ns>`；查找链为 命名空间 → common → en → key）；字典仍可按语言分别注册，这正是将来新增语言时会用到的能力。服务实现槽系统的 `LocaleFace`，并通过 `ctx.slots.installLocale` 安装自身，为框架注入的 `t` 标准席位提供支撑（`Translate`/`TranslateNS` 是 ui-slots 的类型，请从那里引入——本包只是为了方便字典所有者才重新导出）。
 
 ## 模型体验
 

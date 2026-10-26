@@ -4,18 +4,18 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 
 import type { RunningToolCall, ToolResultNode } from '@pentest-harness/dsh-client-runtime/client'
 import { makeTranslate } from '@pentest-harness/dsh-client-test-runtime'
-import { zh as commonZh } from '@pentest-harness/dsh-client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@pentest-harness/dsh-client-locale/src/locales/index.ts'
 import { classifyTool, resultText, toolRowModel } from '../src/client/tool/models/tool-call-model.ts'
 import { ToolRow } from '../src/client/tool/components/ToolRow.tsx'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
-import { zh } from '@pentest-harness/dsh-client-ui-conversation/src/client/locales.ts'
+import { en } from '@pentest-harness/dsh-client-ui-conversation/src/client/locales.ts'
 
 afterEach(() => {
   cleanup()
 })
 
 // Mirrors the real lookup chain (conversation namespace, then common).
-const t: GenericToolCardProps['t'] = makeTranslate(zh, commonZh)
+const t: GenericToolCardProps['t'] = makeTranslate(en, commonEn)
 
 const running = (over?: Partial<RunningToolCall>): RunningToolCall => ({
   callId: 'c1', name: 'bash', argsRaw: '{"command":"ls -la","description":"List files"}',

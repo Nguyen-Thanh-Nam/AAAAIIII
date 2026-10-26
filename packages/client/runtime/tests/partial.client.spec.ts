@@ -26,9 +26,9 @@ describe('PartialAccumulator', () => {
 
   it('accumulates text deltas, starting from empty when prev is missing or another kind', () => {
     const acc = new PartialAccumulator(1, 0)
-    acc.push(chunk({ type: 'text-delta', index: 0, text: '无 start ' })) // prev missing
+    acc.push(chunk({ type: 'text-delta', index: 0, text: 'None start ' })) // prev missing
     acc.push(chunk({ type: 'text-delta', index: 0, text: '也累积' }))
-    expect(acc.toPartial().blocks).toEqual([{ kind: 'text', text: '无 start 也累积' }])
+    expect(acc.toPartial().blocks).toEqual([{ kind: 'text', text: 'None start 也累积' }])
     acc.push(chunk({ type: 'reasoning-delta', index: 0, text: '换型重起' })) // prev is text → restart
     expect(acc.toPartial().blocks).toEqual([{ kind: 'reasoning', text: '换型重起' }])
   })

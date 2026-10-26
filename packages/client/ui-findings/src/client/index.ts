@@ -14,7 +14,7 @@ import type { ConnectionHandle, FindingsScope, FindingView, SessionId } from '@p
 import type {} from '@pentest-harness/dsh-client-locale/client'
 import type {} from '@pentest-harness/dsh-client-ui-conversation/client'
 import { IssuesView, type IssuesViewInjected } from './IssuesView.tsx'
-import { en, NS, zh } from './locales.ts'
+import { en, NS } from './locales.ts'
 
 /** Required services: the tab ring, conversation face, session bindings, dictionaries, wire client. */
 export const inject = ['slots', 'conversation', 'sessions', 'locale', 'connection']
@@ -24,7 +24,7 @@ export const inject = ['slots', 'conversation', 'sessions', 'locale', 'connectio
  * @param ctx - client root context.
  */
 export function apply(ctx: Context): void {
-  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-findings: dictionaries')
+  ctx.effect(() => ctx.locale.register(NS, { en }), 'ui-findings: dictionaries')
   const t = ctx.locale.bind(NS)
 
   /** Read the folded ledgers one session can see, in the requested scope. */

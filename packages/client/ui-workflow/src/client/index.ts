@@ -10,7 +10,7 @@ import type { SessionId } from '@pentest-harness/dsh-client-runtime/client'
 import type {} from '@pentest-harness/dsh-client-locale/client'
 import type {} from '@pentest-harness/dsh-client-ui-conversation/client'
 import { WorkflowView, type WorkflowViewInjected } from './WorkflowView.tsx'
-import { en, NS, zh } from './locales.ts'
+import { en, NS } from './locales.ts'
 
 /** Required services: slots, sessions (session binding), locale. */
 export const inject = ['slots', 'sessions', 'locale']
@@ -20,7 +20,7 @@ export const inject = ['slots', 'sessions', 'locale']
  * @param ctx - client root context.
  */
 export function apply(ctx: Context): void {
-  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-workflow: dictionaries')
+  ctx.effect(() => ctx.locale.register(NS, { en }), 'ui-workflow: dictionaries')
   const t = ctx.locale.bind(NS)
 
   ctx.slots.inject('conversation.view', () => ctx.slots.register({

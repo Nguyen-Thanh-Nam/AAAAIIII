@@ -21,10 +21,8 @@ import type {} from '@pentest-harness/dsh-client-ui-settings/client'
 import {
   LOCALE_PREFERENCE_FIELD, LOCALE_SETTINGS_NAMESPACE, type LocaleId, type LocaleSettings,
 } from '../locale-settings.ts'
-import { en, zh, type CommonKey } from '../locales/index.ts'
-import {
-  en as settingsEn, zh as settingsZh, type SettingsLocaleKey,
-} from '../locales/settings.ts'
+import { en, type CommonKey } from '../locales/index.ts'
+import { en as settingsEn, type SettingsLocaleKey } from '../locales/settings.ts'
 import type { LanguageRowInjected } from './LanguageRow.tsx'
 import { LanguageRow } from './LanguageRow.tsx'
 import { createLanguageRowStore } from './settings-store.ts'
@@ -55,7 +53,7 @@ export type LocaleDict = Record<string, string>
 export interface LocaleDefinition {
   /** Locale id (persisted; the setLocale argument). */
   id: LocaleId
-  /** Display name in its own language (中文 / English). */
+  /** Display name in its own language (English). */
   label: string
 }
 
@@ -87,13 +85,11 @@ declare module '@pentest-harness/cordis' {
 }
 
 /**
- * English is both the locale the UI opens in when the browser names no shipped
- * language (and for non-browser runs), and the dictionary consulted after the
- * active locale misses a key. One constant serves both because the shipped
- * `zh`/`en` dictionaries carry identical key sets, so neither direction can
- * leave a key unresolved; the residual case points at English rather than
- * zh because a browser naming neither shipped language is the reader least
- * likely to read Chinese.
+ * English is the only shipped locale: the one the UI opens in, and the
+ * dictionary consulted after an active-locale miss. The two roles still
+ * deserve one constant because a namespace registered late leaves keys
+ * unresolved until its dictionary lands, and that residual case must resolve
+ * the same way the first lookup would.
  */
 export const FALLBACK_LOCALE: LocaleId = 'en'
 
@@ -103,9 +99,9 @@ export const COMMON_NS = 'common'
 /** Namespace owning this feature's settings-row copy. */
 export const SETTINGS_NS = 'settings.locale'
 
-/** The two shipped locales. */
+/** The shipped locales. One entry today; the list stays a list because the
+ * service, the snapshot and the settings preference are all keyed by it. */
 const LOCALES: readonly LocaleDefinition[] = Object.freeze([
-  { id: 'zh', label: '中文' },
   { id: 'en', label: 'English' },
 ])
 
@@ -114,10 +110,9 @@ const LOCALES: readonly LocaleDefinition[] = Object.freeze([
  * vocabulary (primary subtag); the document attribute wants a BCP 47 tag,
  * which assistive technology and browser features (pronunciation rules,
  * translation offers, font fallback, spell check) read to pick their own
- * behavior. `zh` alone leaves the script ambiguous, so the shipped Chinese
- * copy names the variant it actually is.
+ * behavior.
  */
-const DOCUMENT_LANGUAGE: Record<LocaleId, string> = { zh: 'zh-CN', en: 'en' }
+const DOCUMENT_LANGUAGE: Record<LocaleId, string> = { en: 'en' }
 
 /**
  * Point `<html lang>` at the active locale. Called on every locale change,
@@ -212,7 +207,7 @@ export class LocaleRuntime {
   setLocale(id: string): void {
     const match = this.snapshot.locales.find(l => l.id === id)
     if (match === undefined) throw new Error(`locale "${id}" is not registered`)
-    if (this.snapshot.active !== match.id) this.publish(match.id, true)
+    if (switched(this.snapshot.active, match.id)) this.publish(match.id, true)
     void this.host?.set(LOCALE_PREFERENCE_FIELD, match.id)
   }
 
@@ -224,9 +219,13 @@ export class LocaleRuntime {
   private adopt(host: SettingsScope<LocaleSettings>): void {
     const section = host.getSnapshot().value
     if (section === undefined) return
-    const target = section.preference ?? this.provisional
-    if (this.snapshot.active === target) return
-    this.publish(target, true)
+    const preference = section.preference
+    // A profile written before the shipped set narrowed still names its old
+    // locale; that value is no longer selectable, so it loses to the browser.
+    const target = LOCALES.some(l => l.id === preference) && preference !== undefined
+      ? preference
+      : this.provisional
+    if (switched(this.snapshot.active, target)) this.publish(target, true)
   }
 
   /**
@@ -350,6 +349,20 @@ export class LocaleRuntime {
 }
 
 /**
+ * Whether a republish would move the active locale. One shipped locale makes a
+ * direct `!==` statically constant, so the comparison runs over the shipped
+ * table's positions; the guard is live again the moment `LOCALE_IDS` carries a
+ * second entry.
+ * @param current - the locale on screen now.
+ * @param next - the locale about to be published.
+ * @returns true when the two ids name different entries of the shipped table.
+ */
+function switched(current: LocaleId, next: LocaleId): boolean {
+  const shipped: readonly string[] = LOCALES.map(locale => locale.id)
+  return shipped.indexOf(current) !== shipped.indexOf(next)
+}
+
+/**
  * The browser's own language wins over {@link FALLBACK_LOCALE}; an explicit
  * Host preference may replace this provisional value after plugin activation.
  */
@@ -359,7 +372,7 @@ function resolveInitialLocale(): LocaleId {
 
 /**
  * The first shipped locale the browser asks for, matched on the primary
- * subtag so every regional variant lands on its language (`zh-Hans-CN` -> zh,
+ * subtag so every regional variant lands on its language (`zh-Hans-CN` -> en,
  * `en-GB` -> en). `window` is the browser test, not `navigator`: Node exposes
  * a global `navigator` reporting the machine's own language, which would
  * otherwise decide the locale for non-browser runs (node e2e booting the
@@ -392,8 +405,8 @@ export const inject = ['slots', 'connection', 'remote', 'settingsScope']
 export function apply(ctx: ClientContext): void {
   const host = ctx.settingsScope.bind<LocaleSettings>({ namespace: LOCALE_SETTINGS_NAMESPACE })
   const locale = new LocaleRuntime(ctx, host)
-  locale.register(COMMON_NS, { zh, en })
-  locale.register(SETTINGS_NS, { zh: settingsZh, en: settingsEn })
+  locale.register(COMMON_NS, { en })
+  locale.register(SETTINGS_NS, { en: settingsEn })
   ctx.provide('locale', locale)
   // The service IS the LocaleFace (bind + getSnapshot/subscribe): install it
   // so the render machinery can synthesize the `t` standard seat.
@@ -423,12 +436,17 @@ export function apply(ctx: ClientContext): void {
       setLocale: (id) => { locale.setLocale(id) },
     }
   }
-  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
-    name: 'settings.general.item',
-    id: 'language',
-    order: 0,
-    store,
-    locale: SETTINGS_NS,
-    inject: injected,
-  }, LanguageRow))
+  // One shipped locale leaves nothing to choose: the row only appears once a
+  // second locale exists, so the plugin keeps its registration and its copy
+  // without showing a dropdown with a single option.
+  if (LOCALES.length > 1) {
+    ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+      name: 'settings.general.item',
+      id: 'language',
+      order: 0,
+      store,
+      locale: SETTINGS_NS,
+      inject: injected,
+    }, LanguageRow))
+  }
 }
