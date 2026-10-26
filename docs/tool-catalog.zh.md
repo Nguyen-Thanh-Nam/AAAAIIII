@@ -42,6 +42,7 @@
 | `@pentest-harness/dsh-tool-subagent-report` | `report` | `ctx.subagents`、`ctx.systemPrompt`、`a live continuable in-process child Agent` | `tool/call`、`tool/result`、`a user-role message in the direct parent session` | - | 按可继续的进程内子级注册，而非全局注册，因此该 schema 仅在这种子级内部可见，并且不受其全局 `toolFilter` 影响。同一份贡献还会安装子级作用域的 `tool:report` 系统提示词 section，本目录不渲染该 section。面向父级的 `send_message` 工具单独安装。 |
 | `@pentest-harness/dsh-tool-jobs` | `job_kill`、`job_list`、`job_output` | `ctx.tools`、`ctx.jobs`、`ctx.systemPrompt` | `tool/call`、`tool/result`、`user/message via agent.inject() for background completion notices` | - | 与任务种类无关的后台任务控制器：后台 bash 命令、PTY 发送和 subagent 都通过相同的 3 个工具读取、列出和终止。加载该插件会挂接控制器，从而启用生产方的 `ctx.jobs.start()`。 |
 | `@pentest-harness/dsh-experimental-tool-agent-team` | `followup_task`、`interrupt_agent`、`list_agents`、`send_message`、`spawn_teammate`、`team_task_create`、`team_task_get`、`team_task_list`、`team_task_update`、`wait_agent` | `ctx.tools`、`ctx.systemPrompt`、`ctx.agentTeams`、`an exact live Team member Agent` | `tool/call`、`team/member`、`team/message/queued`、`team/message/delivered`、`team/task`、`tool/result` | - | 这 10 个工具限定于隐式 Team Lead 与持久 teammate 作用域。随产品发布的 dsh-base bundle 默认禁用该包；文档中的 Agent Teams profile patch 会启用它，并禁用旧 continuable child 的同名控制工具。 |
+| `@pentest-harness/dsh-tool-engagement` | `add_intent`, `delete_assets_by_host`, `graph_overview`, `insert_assets`, `list_assets`, `list_findings`, `list_untested_assets`, `prove_goal`, `record_fact`, `report_finding`, `set_constraints`, `set_goals` | `ctx.tools`, `一个可写的 engagement 根目录` | `tool/call`, `tool/result` | - | Twelve engagement tools over two files: `graph.json` per slug (goals, constraints, intents, facts, assets) and the append-only findings ledger the Issues view folds. The tools append no session events; a call is visible as `tool/call` and `tool/result` only, and the engagement document is validated by the writer rather than by an event invariant. |
 | `@pentest-harness/dsh-tool-todo` | `todo_write` | `ctx.tools`、`owning Agent session` | `tool/call`、`todo/write`、`tool/result` | - | todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为检查清单。`allowParallelInProgress` 是没有默认值的必填项，因此本目录明确选择 `true`，对应描述允许同时存在多个 `in_progress` 项。选择 `false` 的部署会获得同一工具，但描述会要求只能有 1 个活动任务。 |
 | `@pentest-harness/dsh-tool-workflow` | `workflow` | `ctx.tools`、`ctx.workflowEngine`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents the script children)` | `tool/call`、`tool/result` | - | - |
 | `@pentest-harness/dsh-tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
@@ -2030,6 +2031,451 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 
 这 10 个工具限定于隐式 Team Lead 与持久 teammate 作用域。随产品发布的 dsh-base bundle 默认禁用该包；文档中的 Agent Teams profile patch 会启用它，并禁用旧 continuable child 的同名控制工具。
 
+
+<a id="pentest-harnessdsh-tool-engagement"></a>
+
+## `@pentest-harness/dsh-tool-engagement`
+
+### `add_intent`
+
+在 frontier 中开辟一个探索方向：接下来值得尝试的事情，以及它覆盖的资产。意图为并行工作提供名字，也让 record_fact 能结算它。一个意图只对应一个可验证的方向，结果才不会含糊。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "What the intent aims to establish."
+    },
+    "assets": {
+      "type": "array",
+      "description": "Assets the intent covers, as registered host strings.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "summary"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `delete_assets_by_host`
+
+删除 host 完全匹配的每个资产及其登记记录。当某台主机其实属于第三方或已超出范围时使用：范围移除必须真正删除目标，而不只是注明已丢弃。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "host": {
+      "type": "string",
+      "description": "Exact host string to delete."
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "host"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `graph_overview`
+
+一次调用读取该 engagement 的当前状态：目标中开放与已达成、约束、仍在 frontier 的意图、已记录的事实、资产覆盖情况，以及按严重级别统计的 finding 数量。用它决定下一步，并发现看起来忙碌却什么都没证明的 engagement。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `insert_assets`
+
+批量登记发现的资产，可以混合不同类别。再次登记同一 host 会更新其类别、服务与备注，而不是重复记录。资产列表是覆盖的分母：没有任何测试的资产会留在未测试列表中。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "assets": {
+      "type": "array",
+      "description": "Assets to register.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "host": {
+            "type": "string",
+            "description": "Host, IP, URL or endpoint; the identity key."
+          },
+          "type": {
+            "type": "string",
+            "description": "Asset class.",
+            "enum": [
+              "domain",
+              "subdomain",
+              "ip",
+              "service",
+              "url",
+              "other"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "description": "Service or port, when known."
+          },
+          "note": {
+            "type": "string",
+            "description": "Free-form note."
+          }
+        },
+        "required": [
+          "host",
+          "type"
+        ]
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "assets"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `list_assets`
+
+列出已登记的资产，可只筛选某一类别。在开启意图之前用它确认 frontier 覆盖真实主机，在批量登记之后用它确认写入了什么。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Only this asset class.",
+      "enum": [
+        "domain",
+        "subdomain",
+        "ip",
+        "service",
+        "url",
+        "other"
+      ]
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `list_findings`
+
+列出该 engagement 中已归档的 finding，可按严重级别或状态筛选。归档前先读它，这样会更新已有 finding，而不是造出近似重复。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "severity": {
+      "type": "string",
+      "description": "Only this severity.",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "description": "Only this status.",
+      "enum": [
+        "new",
+        "confirmed",
+        "false_positive",
+        "duplicate",
+        "fixed",
+        "wontfix"
+      ]
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `list_untested_assets`
+
+列出没有任何事实锚定的已登记资产。这就是诚实的覆盖缺口：没人测过的资产不是干净的资产。把这份列表做完，或在报告中说明某项资产为何未测。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `prove_goal`
+
+通过绑定能证明它的证据，把目标标记为已达成。只在证据在手且可复现时调用；保持开放的目标是诚实的未完成结果。证据文本会随目标一起保存，报告可以引用它。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "goalId": {
+      "type": "string",
+      "description": "Goal id such as G-1."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "What proves the goal, with the command or request that produced it."
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "goalId",
+    "evidence"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `record_fact`
+
+记录一个有证据支撑的结论，并锚定到它涉及的资产。事实是你观察到的东西——例如「每个 /admin 路径的 API 都返回字节完全一致的 401 响应体」——而不是你打算尝试的东西。指明它结算的意图会关闭该意图，并把对应资产从未测试列表中移除。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "The conclusion, one line."
+    },
+    "detail": {
+      "type": "string",
+      "description": "Supporting detail: command output, response excerpt, or reasoning."
+    },
+    "intent": {
+      "type": "string",
+      "description": "Intent id this fact settles, such as I-3."
+    },
+    "assets": {
+      "type": "array",
+      "description": "Assets the fact is anchored to, as registered host strings.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "summary"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `report_finding`
+
+把已确认的漏洞归档到该 engagement 的 findings ledger，附上能展示它的证据和它造成的影响。对同一目标重复报告同一标题会合并到已有 finding，因此再次报告是更新而不是重复。只报告你已证明的东西：疑似弱点先作为事实保留，直到证据结算它。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Finding title, one line, naming the weakness."
+    },
+    "severity": {
+      "type": "string",
+      "description": "critical | high | medium | low | info.",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "description": "Affected URL or host:port."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "The request, command or output that proves it."
+    },
+    "impact": {
+      "type": "string",
+      "description": "What an attacker gains, stated concretely."
+    },
+    "remediation": {
+      "type": "string",
+      "description": "The fix, specific to this deployment."
+    },
+    "class": {
+      "type": "string",
+      "description": "Vulnerability family, such as authz, xss, cors, tls."
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status; defaults to new.",
+      "enum": [
+        "new",
+        "confirmed",
+        "false_positive",
+        "duplicate",
+        "fixed",
+        "wontfix"
+      ]
+    },
+    "verified": {
+      "type": "boolean",
+      "description": "True when an operator reproduced it by hand."
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "title",
+    "severity",
+    "target",
+    "evidence"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `set_constraints`
+
+记录该 engagement 的运行约束：授权允许什么、禁止什么。约束会约束之后的每个动作，所以在测试前记录它们。对破坏性或超范围的动作类别使用 `deny`，对交战规则明确允许的内容使用 `allow`。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "constraints": {
+      "type": "array",
+      "description": "Constraints to add.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "allow | deny.",
+            "enum": [
+              "allow",
+              "deny"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "The constrained action, host or condition."
+          }
+        },
+        "required": [
+          "type",
+          "text"
+        ]
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "constraints"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `set_goals`
+
+为当前 engagement 添加终点目标。目标是可验证的结果或交付物，而不是任务：例如「证明 /api/admin 是否拒绝未认证调用」、「展示攻击者能否读取另一租户的发票」。文本已存在的目标会被跳过。只有证据证明时才用 prove_goal 标记达成。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "goals": {
+      "type": "array",
+      "description": "Goal statements to add.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "goals"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+十二个 engagement 工具，落在两个文件上：每个 slug 一份 `graph.json`（目标、约束、意图、事实、资产），以及 Issues 视图折叠的仅追加 findings ledger。工具不追加会话事件；一次调用只体现为 `tool/call` 与 `tool/result`，而 engagement 文档由写入方校验，而不是靠事件不变式。
 
 <a id="pentest-harnessdsh-tool-todo"></a>
 

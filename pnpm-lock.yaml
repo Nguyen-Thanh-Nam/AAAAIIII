@@ -1168,6 +1168,9 @@ importers:
       '@pentest-harness/dsh-tool-call-timeout-policy':
         specifier: workspace:^
         version: link:../../guard/timeout-policy
+      '@pentest-harness/dsh-tool-engagement':
+        specifier: workspace:^
+        version: link:../../pentest/tool-engagement
       '@pentest-harness/dsh-tool-fs':
         specifier: workspace:^
         version: link:../../fs/tool-fs
@@ -5892,6 +5895,28 @@ importers:
         specifier: workspace:^
         version: link:../../core/tools
 
+  packages/pentest/tool-engagement:
+    dependencies:
+      '@pentest-harness/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@pentest-harness/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@pentest-harness/dsh-invariants':
+        specifier: workspace:^
+        version: link:../../runtime-diagnostics/invariants
+      '@pentest-harness/dsh-llm':
+        specifier: workspace:^
+        version: link:../../llm/llm
+      '@pentest-harness/dsh-system-prompt':
+        specifier: workspace:^
+        version: link:../../core/system-prompt
+      '@pentest-harness/dsh-tools':
+        specifier: workspace:^
+        version: link:../../core/tools
+
   packages/plan/plan-mode:
     dependencies:
       zod:
@@ -10571,10 +10596,12 @@ packages:
 
   '@modelcontextprotocol/server-everything@2026.8.18':
     resolution: {integrity: sha512-sBW2l6uMa9ii78QixTKjXgNSv/Ad6LB8cTGBApJMytHe+VCufLQyME55JbLl/0+fcLmcx93wsZ6ce+0aOF8YXA==}
+    deprecated: 'Date-based versions are no longer published. This package has resumed semantic versioning at 1.0.0: install the latest version.'
     hasBin: true
 
   '@modelcontextprotocol/server-filesystem@2026.7.10':
     resolution: {integrity: sha512-Mmjg4anFBD5OzbPnGJOA0jPPN8645ERhQk38HQLpSenx1ox9bfdPkmAzUnNjeQtqQGFLtKe13J20RtLBmUKMZA==}
+    deprecated: 'Date-based versions are no longer published. This package has resumed semantic versioning at 1.0.0: install the latest version.'
     hasBin: true
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':

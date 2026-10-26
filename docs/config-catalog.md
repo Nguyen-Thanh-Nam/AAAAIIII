@@ -2554,6 +2554,28 @@ export interface Config {
 
 Source: [`packages/shell/tool-bash-persistent/src/index.ts:432`](../packages/shell/tool-bash-persistent/src/index.ts)
 
+<a id="pentest-harnessdsh-tool-engagement"></a>
+
+## `@pentest-harness/dsh-tool-engagement`
+
+Requires: `tools`
+
+```ts config-catalog
+/** Engagement toolset configuration. */
+export interface Config {
+  /** Directory holding one subdirectory per engagement slug, resolved against the harness working directory. */
+  root: string
+  /** Findings ledger path, resolved against the harness working directory; the Issues view reads this same file. */
+  ledger: string
+  /** Slug used when a call does not name its own engagement. */
+  engagement: string
+  /** `createdBy` stamped on reported findings, so the ledger shows who filed them. */
+  recordedBy: string
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts:28`](../packages/pentest/tool-engagement/src/index.ts)
+
 <a id="pentest-harnessdsh-tool-fs"></a>
 
 ## `@pentest-harness/dsh-tool-fs`
@@ -3146,6 +3168,13 @@ export interface Config {
   maxTokens?: number
   /** Maximum `web_search` server-tool uses per request. Defaults to 5. */
   maxUses?: number
+  /**
+   * Additional request headers, for a gateway that requires routing metadata of
+   * its own (a session id, a tenant id). The provider's own headers win any
+   * name collision case-insensitively, so configuration cannot displace the
+   * credential or protocol headers.
+   */
+  headers?: Record<string, string>
 }
 ```
 
@@ -3249,6 +3278,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@pentest-harness/dsh-client-ui-deliverables` — requires `systemPrompt` ([`packages/client/ui-deliverables/src/index.ts`](../packages/client/ui-deliverables/src/index.ts))
 - `@pentest-harness/dsh-client-ui-directory-picker-browse` ([`packages/client/ui-directory-picker-browse/src/index.ts`](../packages/client/ui-directory-picker-browse/src/index.ts))
 - `@pentest-harness/dsh-client-ui-directory-picker-native` ([`packages/client/ui-directory-picker-native/src/index.ts`](../packages/client/ui-directory-picker-native/src/index.ts))
+- `@pentest-harness/dsh-client-ui-findings` ([`packages/client/ui-findings/src/index.ts`](../packages/client/ui-findings/src/index.ts))
 - `@pentest-harness/dsh-client-ui-goal` ([`packages/client/ui-goal/src/index.ts`](../packages/client/ui-goal/src/index.ts))
 - `@pentest-harness/dsh-client-ui-input-trigger` ([`packages/client/ui-input-trigger/src/index.ts`](../packages/client/ui-input-trigger/src/index.ts))
 - `@pentest-harness/dsh-client-ui-jobs` ([`packages/client/ui-jobs/src/index.ts`](../packages/client/ui-jobs/src/index.ts))
@@ -3271,6 +3301,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@pentest-harness/dsh-client-ui-tool` ([`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts))
 - `@pentest-harness/dsh-client-ui-trajectory` ([`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts))
 - `@pentest-harness/dsh-client-ui-user-questions` ([`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts))
+- `@pentest-harness/dsh-client-ui-workflow` ([`packages/client/ui-workflow/src/index.ts`](../packages/client/ui-workflow/src/index.ts))
 - `@pentest-harness/dsh-client-ui-workflow-run` ([`packages/client/ui-workflow-run/src/index.ts`](../packages/client/ui-workflow-run/src/index.ts))
 - `@pentest-harness/dsh-client-ui-workspace` ([`packages/client/ui-workspace/src/index.ts`](../packages/client/ui-workspace/src/index.ts))
 - `@pentest-harness/dsh-command-compact` — requires `commands` · `compaction` ([`packages/compaction/command-compact/src/index.ts`](../packages/compaction/command-compact/src/index.ts))

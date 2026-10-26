@@ -38,6 +38,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@pentest-harness/dsh-tool-subagent-report` | `report` | `ctx.subagents`, `ctx.systemPrompt`, `a live continuable in-process child Agent` | `tool/call`, `tool/result`, `a user-role message in the direct parent session` | - | Registered per continuable in-process child rather than globally, so this schema is visible only inside such a child and survives its global `toolFilter`. The same contribution installs the child-scoped `tool:report` prompt section, which this catalog does not render. The parent-facing `send_message` tool is installed independently. |
 | `@pentest-harness/dsh-tool-jobs` | `job_kill`, `job_list`, `job_output` | `ctx.tools`, `ctx.jobs`, `ctx.systemPrompt` | `tool/call`, `tool/result`, `user/message via agent.inject() for background completion notices` | - | The kind-agnostic background-job controller: background bash commands, PTY sends, and subagents are read, listed, and killed through the same three tools. Loading the plugin attaches the controller that arms producers' `ctx.jobs.start()`. |
 | `@pentest-harness/dsh-experimental-tool-agent-team` | `followup_task`, `interrupt_agent`, `list_agents`, `send_message`, `spawn_teammate`, `team_task_create`, `team_task_get`, `team_task_list`, `team_task_update`, `wait_agent` | `ctx.tools`, `ctx.systemPrompt`, `ctx.agentTeams`, `an exact live Team member Agent` | `tool/call`, `team/member`, `team/message/queued`, `team/message/delivered`, `team/task`, `tool/result` | - | All ten tools are scoped to implicit Team Leads and durable teammates. The shipped dsh-base bundle keeps the package disabled; the documented Agent Teams profile patch enables it while disabling the legacy continuable-child control names. |
+| `@pentest-harness/dsh-tool-engagement` | `add_intent`, `delete_assets_by_host`, `graph_overview`, `insert_assets`, `list_assets`, `list_findings`, `list_untested_assets`, `prove_goal`, `record_fact`, `report_finding`, `set_constraints`, `set_goals` | `ctx.tools`, `a writable engagement root` | `tool/call`, `tool/result` | - | Twelve engagement tools over two files: `graph.json` per slug (goals, constraints, intents, facts, assets) and the append-only findings ledger the Issues view folds. The tools append no session events; a call is visible as `tool/call` and `tool/result` only, and the engagement document is validated by the writer rather than by an event invariant. |
 | `@pentest-harness/dsh-tool-todo` | `todo_write` | `ctx.tools`, `owning Agent session` | `tool/call`, `todo/write`, `tool/result` | - | todo_write is session-owned state; UIs render the latest todo/write event as a checklist. `allowParallelInProgress` is required with no default, so the catalog states its choice: `true`, whose description invites several `in_progress` items. A deployment choosing `false` receives the same tool with a description asking for exactly one active task. |
 | `@pentest-harness/dsh-tool-workflow` | `workflow` | `ctx.tools`, `ctx.workflowEngine`, `ctx.systemPrompt`, `a calling Agent (exec.agent parents the script children)` | `tool/call`, `tool/result` | - | - |
 | `@pentest-harness/dsh-tool-web` | `web_fetch`, `web_search` | `ctx.tools`, `ctx.web`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps. |
@@ -2022,6 +2023,451 @@ Wait for the next teammate status, mailbox, or shared-task change after this cal
 Source: [`packages/experimental/tool-agent-team/src/index.ts`](../packages/experimental/tool-agent-team/src/index.ts)
 
 All ten tools are scoped to implicit Team Leads and durable teammates. The shipped dsh-base bundle keeps the package disabled; the documented Agent Teams profile patch enables it while disabling the legacy continuable-child control names.
+
+<a id="pentest-harnessdsh-tool-engagement"></a>
+
+## `@pentest-harness/dsh-tool-engagement`
+
+### `add_intent`
+
+Open an exploration direction in the frontier: the next thing worth trying, with the assets it covers. Intents give parallel work a name and let record_fact settle them. Keep one intent to one testable direction so its result is unambiguous.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "What the intent aims to establish."
+    },
+    "assets": {
+      "type": "array",
+      "description": "Assets the intent covers, as registered host strings.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "summary"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `delete_assets_by_host`
+
+Remove every asset whose host matches exactly, together with its registration. Use it when a host turns out to belong to a third party or to be out of scope: scope removal must actually remove the target, not just note that it was dropped.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "host": {
+      "type": "string",
+      "description": "Exact host string to delete."
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "host"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `graph_overview`
+
+Read the engagement's current state in one call: goals open and met, constraints, intents still in the frontier, recorded facts, asset coverage, and finding counts by severity. Use it to decide what to do next and to notice an engagement that looks busy but has proved nothing.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `insert_assets`
+
+Register discovered assets in one batch, mixing classes if needed. Registering the same host again updates its class, service and note instead of duplicating it. The asset list is the coverage denominator: an asset nothing tests stays on the untested list.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "assets": {
+      "type": "array",
+      "description": "Assets to register.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "host": {
+            "type": "string",
+            "description": "Host, IP, URL or endpoint; the identity key."
+          },
+          "type": {
+            "type": "string",
+            "description": "Asset class.",
+            "enum": [
+              "domain",
+              "subdomain",
+              "ip",
+              "service",
+              "url",
+              "other"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "description": "Service or port, when known."
+          },
+          "note": {
+            "type": "string",
+            "description": "Free-form note."
+          }
+        },
+        "required": [
+          "host",
+          "type"
+        ]
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "assets"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `list_assets`
+
+List registered assets, optionally narrowed to one class. Use it before opening intents so the frontier covers real hosts, and after registering a batch to confirm what landed.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Only this asset class.",
+      "enum": [
+        "domain",
+        "subdomain",
+        "ip",
+        "service",
+        "url",
+        "other"
+      ]
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `list_findings`
+
+List the findings already filed in this engagement, optionally narrowed by severity or status. Read it before reporting so you update an existing finding instead of filing a near-duplicate.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "severity": {
+      "type": "string",
+      "description": "Only this severity.",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "description": "Only this status.",
+      "enum": [
+        "new",
+        "confirmed",
+        "false_positive",
+        "duplicate",
+        "fixed",
+        "wontfix"
+      ]
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `list_untested_assets`
+
+List registered assets that no fact is anchored to. This is the honest coverage gap: an asset nobody tested is not a clean asset. Work this list down or state in the report why an asset stayed untested.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  }
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `prove_goal`
+
+Mark a goal met by binding the evidence that proves it. Call it only when the evidence is in hand and reproducible; a goal left open is an honest unfinished result. The evidence text is stored with the goal so a report can cite it.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "goalId": {
+      "type": "string",
+      "description": "Goal id such as G-1."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "What proves the goal, with the command or request that produced it."
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "goalId",
+    "evidence"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `record_fact`
+
+Record an evidence-backed conclusion, anchored to the assets it concerns. A fact is what you observed — "the API answers 401 with a byte-identical body for every /admin path" — not what you intend to try. Naming the intent it settles closes that intent and removes its assets from the untested list.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "The conclusion, one line."
+    },
+    "detail": {
+      "type": "string",
+      "description": "Supporting detail: command output, response excerpt, or reasoning."
+    },
+    "intent": {
+      "type": "string",
+      "description": "Intent id this fact settles, such as I-3."
+    },
+    "assets": {
+      "type": "array",
+      "description": "Assets the fact is anchored to, as registered host strings.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "summary"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `report_finding`
+
+File a confirmed vulnerability in the engagement findings ledger, with the evidence that shows it and the impact it has. Reporting the same title against the same target folds onto the existing finding, so a re-report updates rather than duplicates. Report what you proved: a suspected weakness stays in a fact until evidence settles it.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Finding title, one line, naming the weakness."
+    },
+    "severity": {
+      "type": "string",
+      "description": "critical | high | medium | low | info.",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "description": "Affected URL or host:port."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "The request, command or output that proves it."
+    },
+    "impact": {
+      "type": "string",
+      "description": "What an attacker gains, stated concretely."
+    },
+    "remediation": {
+      "type": "string",
+      "description": "The fix, specific to this deployment."
+    },
+    "class": {
+      "type": "string",
+      "description": "Vulnerability family, such as authz, xss, cors, tls."
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status; defaults to new.",
+      "enum": [
+        "new",
+        "confirmed",
+        "false_positive",
+        "duplicate",
+        "fixed",
+        "wontfix"
+      ]
+    },
+    "verified": {
+      "type": "boolean",
+      "description": "True when an operator reproduced it by hand."
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "title",
+    "severity",
+    "target",
+    "evidence"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `set_constraints`
+
+Record the engagement's operating constraints: what the authorization allows and forbids. Constraints bind every later action, so record them before testing. Use `deny` for destructive or out-of-scope action classes and `allow` for what the rules of engagement explicitly permit.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "constraints": {
+      "type": "array",
+      "description": "Constraints to add.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "allow | deny.",
+            "enum": [
+              "allow",
+              "deny"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "The constrained action, host or condition."
+          }
+        },
+        "required": [
+          "type",
+          "text"
+        ]
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "constraints"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+### `set_goals`
+
+Add finish-line goals to the current engagement. A goal is a verifiable outcome or deliverable, not a task: "prove whether /api/admin rejects unauthenticated callers", "show whether an attacker can read another tenant's invoices". Goals already recorded with the same text are skipped. Mark a goal met with prove_goal only when evidence proves it.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "goals": {
+      "type": "array",
+      "description": "Goal statements to add.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Engagement slug; defaults to the configured one."
+    }
+  },
+  "required": [
+    "goals"
+  ]
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts`](../packages/pentest/tool-engagement/src/index.ts)
+
+Twelve engagement tools over two files: `graph.json` per slug (goals, constraints, intents, facts, assets) and the append-only findings ledger the Issues view folds. The tools append no session events; a call is visible as `tool/call` and `tool/result` only, and the engagement document is validated by the writer rather than by an event invariant.
 
 <a id="pentest-harnessdsh-tool-todo"></a>
 

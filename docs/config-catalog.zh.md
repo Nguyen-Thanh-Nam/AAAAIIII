@@ -2889,6 +2889,28 @@ export interface Config {
 
 来源：[`packages/terminal/tool-terminal/src/index.ts:35`](../packages/terminal/tool-terminal/src/index.ts)
 
+<a id="pentest-harnessdsh-tool-engagement"></a>
+
+## `@pentest-harness/dsh-tool-engagement`
+
+需要：`tools`
+
+```ts config-catalog
+/** Engagement toolset configuration. */
+export interface Config {
+  /** Directory holding one subdirectory per engagement slug, resolved against the harness working directory. */
+  root: string
+  /** Findings ledger path, resolved against the harness working directory; the Issues view reads this same file. */
+  ledger: string
+  /** Slug used when a call does not name its own engagement. */
+  engagement: string
+  /** `createdBy` stamped on reported findings, so the ledger shows who filed them. */
+  recordedBy: string
+}
+```
+
+Source: [`packages/pentest/tool-engagement/src/index.ts:28`](../packages/pentest/tool-engagement/src/index.ts)
+
 <a id="pentest-harnessdsh-tool-todo"></a>
 
 ## `@pentest-harness/dsh-tool-todo`
@@ -3243,6 +3265,8 @@ export interface Config {
 - `@pentest-harness/dsh-client-ui-goal`（[`packages/client/ui-goal/src/index.ts`](../packages/client/ui-goal/src/index.ts)）
 - `@pentest-harness/dsh-client-ui-input-trigger`（[`packages/client/ui-input-trigger/src/index.ts`](../packages/client/ui-input-trigger/src/index.ts)）
 - `@pentest-harness/dsh-client-ui-jobs`（[`packages/client/ui-jobs/src/index.ts`](../packages/client/ui-jobs/src/index.ts)）
+- `@pentest-harness/dsh-client-ui-findings` ([`packages/client/ui-findings/src/index.ts`](../packages/client/ui-findings/src/index.ts))
+- `@pentest-harness/dsh-client-ui-workflow` ([`packages/client/ui-workflow/src/index.ts`](../packages/client/ui-workflow/src/index.ts))
 - `@pentest-harness/dsh-client-ui-layout`（[`packages/client/ui-layout/src/index.ts`](../packages/client/ui-layout/src/index.ts)）
 - `@pentest-harness/dsh-client-ui-message-feedback`（[`packages/client/ui-message-feedback/src/index.ts`](../packages/client/ui-message-feedback/src/index.ts)）
 - `@pentest-harness/dsh-client-ui-model-selection`（[`packages/client/ui-model-selection/src/index.ts`](../packages/client/ui-model-selection/src/index.ts)）

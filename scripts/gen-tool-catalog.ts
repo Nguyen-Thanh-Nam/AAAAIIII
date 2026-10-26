@@ -60,6 +60,7 @@ import * as ToolSessionQuery from '@pentest-harness/dsh-tool-session-query'
 import * as ToolTasks from '@pentest-harness/dsh-tool-jobs'
 import type TeamService from '@pentest-harness/dsh-experimental-agent-team'
 import * as ToolTeam from '@pentest-harness/dsh-experimental-tool-agent-team'
+import * as ToolEngagement from '@pentest-harness/dsh-tool-engagement'
 import * as ToolTodo from '@pentest-harness/dsh-tool-todo'
 import * as ToolSubagent from '@pentest-harness/dsh-tool-subagent'
 import * as ToolWeb from '@pentest-harness/dsh-tool-web'
@@ -560,6 +561,23 @@ const TOOL_PACKAGES: ToolPackage[] = [
     scope: ctx => catalogChildScopes.get(ctx) as Agent,
     note:
       'All ten tools are scoped to implicit Team Leads and durable teammates. The shipped dsh-base bundle keeps the package disabled; the documented Agent Teams profile patch enables it while disabling the legacy continuable-child control names.',
+  },
+  {
+    pkg: '@pentest-harness/dsh-tool-engagement',
+    dir: 'tool-engagement',
+    source: 'packages/pentest/tool-engagement/src/index.ts',
+    requires: ['ctx.tools', 'a writable engagement root'],
+    writes: ['tool/call', 'tool/result'],
+    async mount(ctx) {
+      await ctx.plugin(ToolEngagement, {
+        root: 'engagements',
+        ledger: '.findings/ledger.jsonl',
+        engagement: 'main',
+        recordedBy: 'dsh-agent',
+      })
+    },
+    note:
+      'Twelve engagement tools over two files: `graph.json` per slug (goals, constraints, intents, facts, assets) and the append-only findings ledger the Issues view folds. The tools append no session events; a call is visible as `tool/call` and `tool/result` only, and the engagement document is validated by the writer rather than by an event invariant.',
   },
   {
     pkg: '@pentest-harness/dsh-tool-todo',
