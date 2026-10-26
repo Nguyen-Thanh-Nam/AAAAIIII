@@ -14,8 +14,9 @@ describe('BootPage', () => {
   it('draws the loading skeleton before any plugin state arrives', () => {
     const { el } = mount()
     expect(el.firstElementChild?.getAttribute('data-dsh-boot')).toBe('')
-    expect(el.textContent).toContain('HARNESS')
-    expect(el.textContent).toContain('Loading plugins…')
+    expect(el.textContent).not.toContain('AI')
+    expect(el.querySelector('svg, img')).toBeNull()
+    expect(el.textContent).toContain('Spinning up recon engines…')
   })
 
   it('keeps loading while entries are active or loading', () => {
@@ -29,7 +30,7 @@ describe('BootPage', () => {
     expect(el.querySelector('[data-dsh-boot-spinner]')).toBe(spinner)
     page.setState('b', 'active')
     expect(spinner?.style.getPropertyValue('--dsh-boot-arc')).toBe('288deg')
-    expect(el.textContent).toContain('Loading plugins…')
+    expect(el.textContent).toContain('Spinning up recon engines…')
     expect(el.textContent).not.toContain('Failed to load plugins')
   })
 
@@ -41,7 +42,7 @@ describe('BootPage', () => {
     expect(el.textContent).toContain('@pentest-harness/dsh-client-ui-layout')
     expect(el.textContent).toContain('@pentest-harness/dsh-client-ui-tool')
     expect(el.textContent).not.toContain('ok')
-    expect(el.textContent).not.toContain('Loading plugins…')
+    expect(el.textContent).not.toContain('Spinning up recon engines…')
   })
 
   it('shows the complete sweep report', () => {
@@ -50,7 +51,7 @@ describe('BootPage', () => {
     page.fail(report)
     page.setState('a', 'active')
     expect(el.textContent).toContain(report)
-    expect(el.textContent).not.toContain('Loading plugins…')
+    expect(el.textContent).not.toContain('Spinning up recon engines…')
   })
 
   it('detaches on disposal', () => {

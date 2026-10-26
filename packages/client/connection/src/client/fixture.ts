@@ -2884,6 +2884,28 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         })
       },
     },
+    findings: {
+      // The fixture serves one confirmed and one new finding so the Issues
+      // surface renders a populated table without touching the filesystem.
+      list: (request) => {
+        const missing = requireSession(request)
+        if (missing !== undefined) return missing
+        return ok(request, {
+          findings: [
+            {
+              id: 'F-fixture1', title: 'fixture 漏洞样本（已复现）', severity: 'medium', status: 'confirmed',
+              target: 'https://fixture.example.com/api', class: 'cors', createdBy: 'fixture',
+              lastActivity: new Date().toISOString(), verified: true,
+            },
+            {
+              id: 'F-fixture2', title: 'fixture 漏洞样本（待确认）', severity: 'low', status: 'new',
+              target: 'https://fixture.example.com/health', class: 'info-disclosure', createdBy: 'fixture',
+              lastActivity: new Date().toISOString(), verified: false,
+            },
+          ],
+        })
+      },
+    },
     goals: {
       // Compatibility face only: old API Proxy payloads and acknowledgements
       // adapt to the canonical fixture Remote implementation above.
@@ -3205,6 +3227,7 @@ export class FixtureApiClient extends AbstractApiClient {
       case 'workspace.insertSessionBefore': return this.api.workspace.insertSessionBefore(request)
       case 'workspace.archiveSession': return this.api.workspace.archiveSession(request)
       case 'skill.list': return this.api.skills.list(request)
+      case 'findings.list': return this.api.findings.list(request)
       case 'agentPreset.list': return this.api.agentPresets.list(request)
       case 'agentPreset.select': return this.api.agentPresets.select(request)
       case 'agentPreset.read': return this.api.agentPresets.read(request)

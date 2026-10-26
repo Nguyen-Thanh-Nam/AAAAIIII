@@ -107,6 +107,12 @@ export interface DeepSeekSearchProviderOptions {
    * prevents dispatch so model-visible auxiliary input cannot escape logging.
    */
   recordRequest?: (request: DeepSeekSearchLlmRequest) => void
+  /**
+   * Extra request headers for a gateway that requires its own routing metadata.
+   * Names the provider sets itself win case-insensitively, so this cannot
+   * displace the credential or protocol headers.
+   */
+  headers?: Readonly<Record<string, string>>
 }
 
 /**
@@ -222,16 +228,7 @@ export class DeepSeekSearchProvider implements WebSearchProvider {
       response = await fetch(endpoint, {
         method: 'POST',
         redirect: 'error',
-        headers: {
-          // Official DeepSeek expects `x-api-key`; an Anthropic-compatible proxy
-          // may expect `Authorization: Bearer` — send both so either resolves.
-          'x-api-key': apiKey,
-          'authorization': `Bearer ${apiKey}`,
-          'anthropic-version': options.apiVersion,
-          'content-type': 'application/json',
-          'accept': 'application/json',
-          'user-agent': USER_AGENT,
-        },
+        headers: requestHeaders(options, apiKey),
         body: JSON.stringify(body),
         ...signal !== undefined ? { signal } : {},
       })
@@ -327,6 +324,34 @@ function abortable<T>(operation: Promise<T>, signal?: AbortSignal): Promise<T> {
 /** Throw the provider's stable cancellation error when the caller already aborted. */
 function throwIfSearchAborted(signal?: AbortSignal): void {
   if (signal?.aborted === true) throw searchAborted(signal)
+}
+
+/**
+ * Build the request headers, letting configured routing headers through without
+ * letting them displace the ones this provider owns. The credential and protocol
+ * headers are filtered out of the configured set case-insensitively before the
+ * provider's own values are applied, so a configured `x-api-key` cannot redirect
+ * the secret and a configured `content-type` cannot change the wire format.
+ *
+ * @param options - the caller's snapshot, carrying any configured headers.
+ * @param apiKey - the resolved credential for this operation.
+ * @returns headers for one Messages request.
+ */
+function requestHeaders(options: DeepSeekSearchProviderOptions, apiKey: string): Record<string, string> {
+  // Official DeepSeek expects `x-api-key`; an Anthropic-compatible proxy may
+  // expect `Authorization: Bearer` — send both so either resolves.
+  const owned: Record<string, string> = {
+    'x-api-key': apiKey,
+    'authorization': `Bearer ${apiKey}`,
+    'anthropic-version': options.apiVersion,
+    'content-type': 'application/json',
+    'accept': 'application/json',
+    'user-agent': USER_AGENT,
+  }
+  const reserved = new Set(Object.keys(owned))
+  const configured = Object.entries(options.headers ?? {})
+    .filter(([name]) => !reserved.has(name.toLowerCase()))
+  return { ...Object.fromEntries(configured), ...owned }
 }
 
 /** Build the provider's stable cancellation error while retaining the caller's reason. */

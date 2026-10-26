@@ -2,14 +2,17 @@
  * Models settings section: the provider rows joined from the configurable
  * directory, settings namespaces, and credential states, with one editor
  * card at a time. Rows expose only confirmed API-key state through accessible
- * solid configured or missing dots. A whole-section provider without a
- * configured key renders as its open setup card instead of a row, but only in
- * the first-run posture — no provider on the page can serve requests yet — and
- * only until the user closes that card; the add flow is a card carrying the
- * dormant-provider select. Each card kind owns its own open state, so closing
- * one never discards a draft in another. Every mutation writes through the
- * wire, while a provider removal first requires confirmation; the page
- * re-renders from pushed invalidations or the post-apply reload.
+ * solid configured or missing dots, and each carries a quick Add API key
+ * action opening the credential-only editor — key input and commit, no
+ * provider settings — beside the full Edit card. A whole-section provider
+ * without a configured key renders as its open setup card instead of a row,
+ * but only in the first-run posture — no provider on the page can serve
+ * requests yet — and only until the user closes that card; the add flow is a
+ * card carrying the dormant-provider select. Each card kind owns its own open
+ * state, so closing one never discards a draft in another. Every mutation
+ * writes through the wire, while a provider removal first requires
+ * confirmation; the page re-renders from pushed invalidations or the
+ * post-apply reload.
  */
 
 import { useState } from 'react'
@@ -78,7 +81,7 @@ interface EditorTarget extends ProviderIdentity {
 /** Values that vary around the shared provider-editor rendering. */
 interface ProviderEditorRenderProps extends Pick<
   ProviderEditorProps,
-  'namespace' | 'schema' | 'api' | 't' | 'readOnly' | 'onClose'
+  'namespace' | 'schema' | 'api' | 't' | 'readOnly' | 'onClose' | 'credentialOnly'
 > {
   target: EditorTarget
 }
@@ -239,6 +242,7 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
   const state = injected.useSnapshot(snapshot => snapshot)
   const [editing, setEditing] = useState<EditorTarget | undefined>(undefined)
   const [adding, setAdding] = useState(false)
+  const [keyTarget, setKeyTarget] = useState<EditorTarget | undefined>(undefined)
   const [deleteTarget, setDeleteTarget] = useState<EditorTarget | undefined>(undefined)
   const [deleting, setDeleting] = useState(false)
   const [deleteFailure, setDeleteFailure] = useState<string | undefined>(undefined)
@@ -290,6 +294,15 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
     setEditing(undefined)
     setAdding(false)
     setDeclaring(false)
+    if (changed) announceSaved(target)
+  }
+
+  /**
+   * Close the quick key card. It is that card's own state, so this clears
+   * nothing else: the row editor and add card each own their open flags.
+   */
+  const closeKeyEditor = (changed: boolean, target: ProviderIdentity): void => {
+    setKeyTarget(undefined)
     if (changed) announceSaved(target)
   }
 
@@ -400,6 +413,7 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
             )
           }
           const open = !adding && editing?.provider === row.entry.provider
+          const keyOpen = !adding && keyTarget?.provider === row.entry.provider
           const credentialConfigured = row.credential?.configured === true
           const credentialMissing = !credentialConfigured
             && row.apiKeyEnv !== undefined
@@ -486,6 +500,25 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
                       )
                     })()
                     : null}
+                  {/* The quick credential action: key input and commit alone,
+                      for replacing the key without opening the full card. It
+                      toggles its own card and closes the row editor, so at
+                      most one card is open at a time. */}
+                  <button
+                    type="button"
+                    className={styles['secondaryButton']}
+                    aria-label={providerCopy(t('addKeyProvider'), target)}
+                    disabled={!state.writable}
+                    onClick={() => {
+                      setSavedTarget(undefined)
+                      setDeclaring(false)
+                      setAdding(false)
+                      setEditing(undefined)
+                      setKeyTarget(keyOpen ? undefined : target)
+                    }}
+                  >
+                    {t('addKey')}
+                  </button>
                   <button
                     type="button"
                     className={styles['secondaryButton']}
@@ -497,6 +530,7 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
                       // one discards the other's draft.
                       setDeclaring(false)
                       setAdding(false)
+                      setKeyTarget(undefined)
                       setEditing(open ? undefined : target)
                     }}
                   >
@@ -553,6 +587,18 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
                     : null}
                 </div>
               </div>
+              {keyOpen
+                ? renderProviderEditor({
+                  target,
+                  namespace,
+                  schema,
+                  api,
+                  t,
+                  readOnly: !state.writable,
+                  credentialOnly: true,
+                  onClose: (changed) => { closeKeyEditor(changed, target) },
+                })
+                : null}
               {open
                 ? renderProviderEditor({
                   target,
@@ -639,6 +685,7 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
                     if (first === undefined) return
                     setSavedTarget(undefined)
                     setDeclaring(false)
+                    setKeyTarget(undefined)
                     setAdding(true)
                     setEditing(targetOf(first))
                   }}
@@ -655,6 +702,7 @@ function Loaded({ injected }: { injected: ModelsSectionFace }): ReactNode {
                     setSavedTarget(undefined)
                     setAdding(false)
                     setEditing(undefined)
+                    setKeyTarget(undefined)
                     setDeclaring(true)
                   }}
                 >

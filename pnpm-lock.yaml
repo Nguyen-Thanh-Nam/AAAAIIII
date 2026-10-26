@@ -1332,6 +1332,9 @@ importers:
       '@pentest-harness/dsh-client-ui-directory-picker-native':
         specifier: workspace:^
         version: link:../../client/ui-directory-picker-native
+      '@pentest-harness/dsh-client-ui-findings':
+        specifier: workspace:^
+        version: link:../../client/ui-findings
       '@pentest-harness/dsh-client-ui-goal':
         specifier: workspace:^
         version: link:../../client/ui-goal
@@ -1398,6 +1401,9 @@ importers:
       '@pentest-harness/dsh-client-ui-user-questions':
         specifier: workspace:^
         version: link:../../client/ui-user-questions
+      '@pentest-harness/dsh-client-ui-workflow':
+        specifier: workspace:^
+        version: link:../../client/ui-workflow
       '@pentest-harness/dsh-client-ui-workflow-run':
         specifier: workspace:^
         version: link:../../client/ui-workflow-run
@@ -2058,6 +2064,42 @@ importers:
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-findings:
+    devDependencies:
+      '@pentest-harness/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@pentest-harness/dsh-api-remotes':
+        specifier: workspace:^
+        version: link:../../api/remotes
+      '@pentest-harness/dsh-client-locale':
+        specifier: workspace:^
+        version: link:../locale
+      '@pentest-harness/dsh-client-runtime':
+        specifier: workspace:^
+        version: link:../runtime
+      '@pentest-harness/dsh-client-ui-conversation':
+        specifier: workspace:^
+        version: link:../ui-conversation
+      '@pentest-harness/dsh-client-ui-slots':
+        specifier: workspace:^
+        version: link:../ui-slots
+      '@pentest-harness/dsh-invariants':
+        specifier: workspace:^
+        version: link:../../runtime-diagnostics/invariants
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
       react:
         specifier: ^18.2.0
         version: 18.3.1

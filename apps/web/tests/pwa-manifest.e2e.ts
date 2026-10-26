@@ -12,11 +12,13 @@ it('ships install metadata with the built web application', async () => {
   const manifest: unknown = JSON.parse(await readFile(join(DIST_ROOT, 'manifest.webmanifest'), 'utf8'))
   expect(manifest).toEqual({
     id: '/',
-    name: 'Pentest Harness',
-    short_name: 'DSH',
+    name: 'AI',
+    short_name: 'AI',
     start_url: '/',
     scope: '/',
     display: 'fullscreen',
+    theme_color: '#0b0b10',
+    background_color: '#0b0b10',
     icons: [{
       src: '/favicon.svg',
       sizes: 'any',

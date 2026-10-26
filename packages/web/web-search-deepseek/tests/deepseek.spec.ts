@@ -532,3 +532,66 @@ describe('web-search-deepseek plugin registration', () => {
     }
   })
 })
+
+describe('DeepSeekSearchProvider configured request headers', () => {
+  it('sends configured routing headers unchanged', async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(searchResponse()))
+    vi.stubGlobal('fetch', fetchMock)
+    await searchProvider({
+      ...options,
+      headers: { 'x-opencode-session': 'session-1', 'x-tenant': 'acme' },
+    }).search({ query: 'hello' })
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    const headers = init.headers as Record<string, string>
+    expect(headers['x-opencode-session']).toBe('session-1')
+    expect(headers['x-tenant']).toBe('acme')
+    expect(headers['x-api-key']).toBe('ds-key')
+  })
+
+  it('omits configured headers entirely when none are set', async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(searchResponse()))
+    vi.stubGlobal('fetch', fetchMock)
+    await searchProvider(options).search({ query: 'hello' })
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    expect(Object.keys(init.headers as Record<string, string>).sort()).toEqual([
+      'accept',
+      'anthropic-version',
+      'authorization',
+      'content-type',
+      'user-agent',
+      'x-api-key',
+    ])
+  })
+
+  it('refuses to let configured headers displace the credential or protocol headers', async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(searchResponse()))
+    vi.stubGlobal('fetch', fetchMock)
+    await searchProvider({
+      ...options,
+      headers: {
+        // Every one of these must lose, including the differently-cased spellings
+        // a case-insensitive gateway would otherwise treat as the same field.
+        'x-api-key': 'attacker-key',
+        'X-Api-Key': 'attacker-key-mixed-case',
+        authorization: 'Bearer attacker',
+        'Content-Type': 'text/plain',
+        accept: 'text/html',
+        'user-agent': 'not-the-harness',
+        'anthropic-version': '1999-01-01',
+        'x-opencode-session': 'session-1',
+      },
+    }).search({ query: 'hello' })
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    const headers = init.headers as Record<string, string>
+    expect(headers['x-api-key']).toBe('ds-key')
+    expect(headers['authorization']).toBe('Bearer ds-key')
+    expect(headers['content-type']).toBe('application/json')
+    expect(headers['accept']).toBe('application/json')
+    expect(headers['anthropic-version']).toBe('2023-06-01')
+    expect(headers['user-agent']).toBe('deepseek-harness/0.0.1')
+    expect(headers['x-opencode-session']).toBe('session-1')
+    expect(Object.values(headers)).not.toContain('attacker-key')
+    expect(Object.values(headers)).not.toContain('attacker-key-mixed-case')
+    expect(Object.values(headers)).not.toContain('Bearer attacker')
+  })
+})

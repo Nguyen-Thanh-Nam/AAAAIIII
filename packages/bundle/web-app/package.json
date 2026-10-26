@@ -82,6 +82,8 @@
     "@pentest-harness/dsh-client-ui-jobs": "workspace:^",
     "@pentest-harness/dsh-client-ui-theme": "workspace:^",
     "@pentest-harness/dsh-client-ui-tool": "workspace:^",
+    "@pentest-harness/dsh-client-ui-workflow": "workspace:^",
+    "@pentest-harness/dsh-client-ui-findings": "workspace:^",
     "@pentest-harness/dsh-client-ui-workflow-run": "workspace:^",
     "@pentest-harness/dsh-client-ui-trajectory": "workspace:^",
     "@pentest-harness/dsh-client-ui-workspace": "workspace:^",

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-/** AppearanceRow behavior: dark-only product, single Dark cube always
- * selected; Light and System were removed with the light palette. */
+/** AppearanceRow behavior: Light/Dark/System cubes, selection from the stored
+ * preference, and a click writing the preference through the injected setTheme. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { createSnapshotStore, type SessionListState, type WorkspaceListState } from '@pentest-harness/dsh-client-runtime/client'
 import { bindSnapshotSelector } from '@pentest-harness/dsh-client-test-runtime'
 import { AppearanceRow } from '../src/client/AppearanceRow.tsx'
@@ -14,7 +14,9 @@ afterEach(cleanup)
 
 const COPY: Record<string, string> = {
   'appearance.title': 'Appearance',
+  'appearance.light': 'Light',
   'appearance.dark': 'Dark',
+  'appearance.system': 'System',
 }
 
 /** Empty global standard-kit hooks (the row reads neither). */
@@ -49,12 +51,19 @@ function mount(preference: ThemePreference = 'system') {
 }
 
 describe('AppearanceRow', () => {
-  it('renders the title and the single always-selected Dark cube', () => {
+  it('renders the title and all three cubes, marking the stored preference selected', () => {
     mount('dark')
     expect(screen.getByText('Appearance')).toBeDefined()
+    expect(screen.getByRole('button', { name: /Light/ }).getAttribute('aria-pressed')).toBe('false')
     expect(screen.getByRole('button', { name: /Dark/ }).getAttribute('aria-pressed')).toBe('true')
-    // The light palette was removed: no Light or System cubes exist.
-    expect(screen.queryByRole('button', { name: /Light/ })).toBeNull()
-    expect(screen.queryByRole('button', { name: /System/ })).toBeNull()
+    expect(screen.getByRole('button', { name: /System/ }).getAttribute('aria-pressed')).toBe('false')
+  })
+
+  it('writes the clicked preference through setTheme', () => {
+    const { setTheme } = mount('dark')
+    fireEvent.click(screen.getByRole('button', { name: /Light/ }))
+    expect(setTheme).toHaveBeenCalledWith('light')
+    fireEvent.click(screen.getByRole('button', { name: /System/ }))
+    expect(setTheme).toHaveBeenCalledWith('system')
   })
 })

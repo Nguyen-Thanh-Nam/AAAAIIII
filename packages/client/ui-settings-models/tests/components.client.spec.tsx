@@ -1199,6 +1199,7 @@ describe('ModelsSection', () => {
     />)
     expect(screen.getByText(en.readOnly)).toBeTruthy()
     expect(screen.getAllByText<HTMLButtonElement>(en.remove).every(button => button.disabled)).toBe(true)
+    expect(screen.getAllByText<HTMLButtonElement>(en.addKey).every(button => button.disabled)).toBe(true)
     expect(screen.getByText<HTMLButtonElement>(en.add).disabled).toBe(true)
   })
 
@@ -1214,6 +1215,55 @@ describe('ModelsSection', () => {
     fireEvent.click(screen.getByText(en.cancel))
     expect(screen.queryAllByLabelText(en.keyInput)).toHaveLength(0)
     expect(update).not.toHaveBeenCalled()
+  })
+
+  it('opens the quick key card from a row and stores a replacement key without settings ops', async () => {
+    const { set, mutate } = await mountSection()
+    fireEvent.click(screen.getByRole('button', { name: openaiCopy(en.addKeyProvider) }))
+    const key = await screen.findByLabelText<HTMLInputElement>(en.keyInput)
+    await waitFor(() => { expect(key.placeholder).toBe(en.keyStored) })
+    // The quick card is the credential field alone: no customized settings.
+    expect(screen.queryByText(en.customized)).toBeNull()
+    fireEvent.change(key, { target: { value: 'sk-new' } })
+    fireEvent.click(screen.getByText(en.apply))
+    await waitFor(() => { expect(set).toHaveBeenCalledWith({ ref: 'OPENAI_API_KEY', value: 'sk-new' }) })
+    expect(mutate).not.toHaveBeenCalled()
+    expect((await screen.findByRole('status')).textContent).toBe(
+      providerCopy(en.savedProvider, { provider: 'openai', displayName: 'openai' }),
+    )
+    expect(screen.queryAllByLabelText(en.keyInput)).toHaveLength(0)
+  })
+
+  it('toggles the quick key card closed and hands off to the row editor without stacking', async () => {
+    await mountSection()
+    const quick = screen.getByRole('button', { name: openaiCopy(en.addKeyProvider) })
+    fireEvent.click(quick)
+    await waitFor(() => { expect(screen.queryAllByLabelText(en.keyInput).length).toBe(1) })
+    fireEvent.click(quick)
+    expect(screen.queryAllByLabelText(en.keyInput)).toHaveLength(0)
+    fireEvent.click(quick)
+    await waitFor(() => { expect(screen.queryAllByLabelText(en.keyInput).length).toBe(1) })
+    fireEvent.click(screen.getByText(en.cancel))
+    expect(screen.queryAllByLabelText(en.keyInput)).toHaveLength(0)
+    // The full row editor opens in its place, not beside it.
+    fireEvent.click(quick)
+    await waitFor(() => { expect(screen.queryAllByLabelText(en.keyInput).length).toBe(1) })
+    fireEvent.click(screen.getByRole('button', { name: openaiCopy(en.editProvider) }))
+    await waitFor(() => { expect(screen.queryAllByLabelText(en.keyInput).length).toBe(1) })
+    expect(screen.getByText(en.customized)).toBeTruthy()
+  })
+
+  it('closes the quick key card when the add card opens, without resurrecting it', async () => {
+    await mountSection()
+    fireEvent.click(screen.getByRole('button', { name: openaiCopy(en.addKeyProvider) }))
+    await waitFor(() => { expect(screen.queryAllByLabelText(en.keyInput).length).toBe(1) })
+    fireEvent.click(screen.getByText(en.add))
+    await screen.findByLabelText(en.provider)
+    // One key input remains: the add card's own, not the quick card's.
+    expect(screen.queryAllByLabelText(en.keyInput)).toHaveLength(1)
+    fireEvent.click(screen.getByText(en.cancel))
+    await screen.findByText(en.add)
+    expect(screen.queryAllByLabelText(en.keyInput)).toHaveLength(0)
   })
 
   it('cancels the add card back to the add button', async () => {

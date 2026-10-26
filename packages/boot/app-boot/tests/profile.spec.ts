@@ -161,17 +161,25 @@ describe('loadProfile', () => {
       .toEqual([...PROFILE_TEMPLATES.web ?? []])
   })
 
-  it('normalizes only the exact installation-owned headless bundle tuple', () => {
+  it('migrates the pre-rebrand installation-owned bundle tuple to the shipped template', () => {
     const anchor = stageInstallation({
       '@pentest-harness/dsh-base': { patch: '[]\n' },
       '@pentest-harness/dsh-web-app': { patch: '[]\n' },
       '@pentest-harness/dsh-headless': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
+
+    const webHome = tmp()
+    const web = resolveProfileDir('web', webHome)
+    initProfile(web, ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'])
+    loadProfile('t', 'web', anchor, webHome)
+    expect(readProfileManifest('t', web).dsh?.profile?.bundles)
+      .toEqual(['@pentest-harness/dsh-base', '@pentest-harness/dsh-web-app'])
+
     const home = tmp()
     const stock = resolveProfileDir('headless', home)
     initProfile(stock, [
-      '@pentest-harness/dsh-base', '@pentest-harness/dsh-web-app', '@pentest-harness/dsh-headless',
+      '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless',
     ])
     loadProfile('t', 'headless', anchor, home)
     expect(readProfileManifest('t', stock).dsh?.profile?.bundles)

@@ -41,3 +41,18 @@ apps/web/dist/
 worktrees/
 .agents/worktrees/
 .typert-*/
+
+# ── engagement data, recon output and local scratch (never published) ──
+.findings/
+engagements/
+recon/
+work/
+h1.txt
+r.txt
+nmap-ips.txt
+main.js
+.scratch/
+.tmp/
+.teto-work/
+.playwright-cli/
+*.bak-*

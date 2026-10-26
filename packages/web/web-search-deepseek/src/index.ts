@@ -58,6 +58,13 @@ export interface Config {
   maxTokens?: number
   /** Maximum `web_search` server-tool uses per request. Defaults to 5. */
   maxUses?: number
+  /**
+   * Additional request headers, for a gateway that requires routing metadata of
+   * its own (a session id, a tenant id). The provider's own headers win any
+   * name collision case-insensitively, so configuration cannot displace the
+   * credential or protocol headers.
+   */
+  headers?: Record<string, string>
 }
 
 export const Config: z<Config> = z.object({
@@ -71,6 +78,7 @@ export const Config: z<Config> = z.object({
   apiVersion: z.string().default(DEEPSEEK_DEFAULT_API_VERSION),
   maxTokens: z.number().step(1).min(1).default(DEEPSEEK_DEFAULT_MAX_TOKENS),
   maxUses: z.number().step(1).min(1).default(DEEPSEEK_DEFAULT_MAX_USES),
+  headers: z.dict(z.string()),
 })
 
 /**
@@ -114,6 +122,7 @@ function resolveOptions(ctx: Context, config: Config): DeepSeekSearchProviderOpt
     apiVersion: config.apiVersion ?? DEEPSEEK_DEFAULT_API_VERSION,
     maxTokens: config.maxTokens ?? DEEPSEEK_DEFAULT_MAX_TOKENS,
     maxUses: config.maxUses ?? DEEPSEEK_DEFAULT_MAX_USES,
+    ...config.headers === undefined ? {} : { headers: { ...config.headers } },
     recordRequest: (request) => {
       ctx.get('agents')?.currentInitiator()?.session.append(
         'web/deepseek-search-llm-request',

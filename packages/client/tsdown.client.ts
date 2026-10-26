@@ -12,7 +12,6 @@ import { readFile } from 'node:fs/promises'
 import { existsSync, globSync, readFileSync } from 'node:fs'
 import { isBuiltin } from 'node:module'
 import { basename, dirname, isAbsolute, relative, resolve as resolvePath, sep } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import type { UserConfig } from 'tsdown'
 import { transform } from 'lightningcss'
 import { optionalStringArray } from './modules/src/client/manifest.ts'
@@ -77,7 +76,24 @@ const GENERATED_REMOTE = /^@pentest-harness\/dsh-[a-z0-9]+(?:-[a-z0-9]+)*\/remot
  */
 const SKIP_WORKSPACE_BUILD: UserConfig = { entry: '' }
 
-const REPOSITORY_ROOT = fileURLToPath(new URL('../..', import.meta.url))
+/**
+ * The repository root, found by walking up from the invocation directory to the
+ * pnpm workspace manifest. `import.meta.url` cannot anchor this: the config
+ * loader bundles this module into each package's evaluated config, so that URL
+ * names the config file, not this source, and its depth under the root varies
+ * per package.
+ */
+function findRepositoryRoot(): string {
+  let dir = process.cwd()
+  for (;;) {
+    if (existsSync(resolvePath(dir, 'pnpm-workspace.yaml'))) return dir
+    const parent = dirname(dir)
+    if (parent === dir) throw new Error('tsdown: no pnpm-workspace.yaml above the invocation directory')
+    dir = parent
+  }
+}
+
+const REPOSITORY_ROOT = findRepositoryRoot()
 
 /** Rebase a physical lib-relative source onto a browser URL that mirrors the repository directories. */
 function browserSourcePath(source: string, sourcemapPath: string): string {

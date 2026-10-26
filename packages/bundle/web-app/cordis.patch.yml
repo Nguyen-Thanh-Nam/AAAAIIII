@@ -297,6 +297,11 @@
     - id: ui-workflow
       name: '@pentest-harness/dsh-client-ui-workflow'
 
+    # Findings tab: the session's issues ledger beside Chat / Trajectory /
+    # Bounty / Workflow.
+    - id: ui-findings
+      name: '@pentest-harness/dsh-client-ui-findings'
+
 # ── the agent plane moves behind agent presets ─────────────────────────────
 #
 # Every row below composes what ONE agent contributes to the host registries:

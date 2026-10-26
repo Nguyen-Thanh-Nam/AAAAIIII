@@ -65,18 +65,14 @@ describe('official browser-brand plugin', () => {
     for (const hole of HOLES) expect(after.slots.entries(hole)).toHaveLength(1)
   })
 
-  it('renders the official name independently from both requested mark sizes', () => {
+  it('occupies both brand slots without drawing any artwork', () => {
     const name = render(<OfficialBrandName />)
-    const nameSvg = name.container.querySelector('svg')
-    expect(nameSvg?.getAttribute('viewBox')).toBe('0 0 522 159')
-    expect(nameSvg?.getAttribute('width')).toBe('131')
-    expect(nameSvg?.getAttribute('height')).toBe('40')
+    expect(name.container.innerHTML).toBe('')
     name.unmount()
 
     const mark = render(<OfficialBrandMark size={34} className="hero-mark" />)
-    expect(mark.container.querySelector('svg')?.getAttribute('width')).toBe('34')
-    expect(mark.container.querySelector('svg')?.getAttribute('class')).toBe('hero-mark')
+    expect(mark.container.innerHTML).toBe('')
     mark.rerender(<OfficialBrandMark size={24} />)
-    expect(mark.container.querySelector('svg')?.getAttribute('width')).toBe('24')
+    expect(mark.container.innerHTML).toBe('')
   })
 })

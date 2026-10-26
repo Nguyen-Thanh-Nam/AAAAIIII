@@ -291,19 +291,29 @@ export class ThemeRuntime {
   }
 
   private buildSnapshot(): ThemeSnapshot {
-    // Dark-only product: whatever the preference says (light, dark, system,
-    // or a stored value from an earlier build), the active theme is always
-    // dark. The preference field remains stored so existing settings files
-    // keep validating; it just no longer selects the palette.
-    const active = this.themes.find(t => t.id === 'dark')
-    /* v8 ignore next 2 -- needs a registry without light/dark, which register()/dispose() cannot produce */
-    if (active === undefined) throw new Error('theme registry lost "dark"')
+    const active = this.resolveActive()
     return Object.freeze({
       preference: this.preference,
       active: this.composeActive(active),
       themes: Object.freeze([...this.themes]),
       revision: this.revision,
     })
+  }
+
+  /**
+   * Resolve the active theme from the preference: `system` follows the OS
+   * `prefers-color-scheme`, a concrete preference selects its own registered
+   * theme. The built-in `light`/`dark` are always registered, and every
+   * non-`system` preference is validated by {@link setTheme}, so this resolves.
+   */
+  private resolveActive(): ThemeDefinition {
+    const id = this.preference === 'system'
+      ? (this.media?.matches === true ? 'dark' : 'light')
+      : this.preference
+    const active = this.themes.find(t => t.id === id)
+    /* v8 ignore next 2 -- a concrete preference is always a registered id and system resolves to the built-in pair */
+    if (active === undefined) throw new Error(`theme registry lost "${id}"`)
+    return active
   }
 
   /**

@@ -4,9 +4,9 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { mkdir, stat } from 'node:fs/promises'
+import { mkdir, readFile, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { z as zod } from 'zod'
 import type { Context } from '@pentest-harness/cordis'
 import { installModelSelection } from '@pentest-harness/dsh-agent'
@@ -41,6 +41,7 @@ import type {
   ModelCatalogFailure, ModelProviderGroup,
   ModelReasoning, MuxFrame, PromptContentPart, QuestionResponsePayload, SessionListMetadata, SessionProjectionsBlock, SessionSearchItem,
   QueuedInboxItem, SessionSummary, SettingsNamespaceView, SubagentAddress, JobView, ToolEventView,
+  FindingView,
   WorkspaceId, WorkspaceView,
 } from './api/index.ts'
 import {
@@ -320,6 +321,60 @@ async function buildModelCatalog(ctx: Context): Promise<{
 /** Wrap an error result echoing the request's rpcId. */
 function err<T>(request: RpcRequest<unknown>, error: RpcError): RpcResponse<T> {
   return { rpcId: request.rpcId, result: { ok: false, error } }
+}
+
+/** Ledger path relative to a session cwd; the only file this domain reads. */
+const FINDINGS_LEDGER_PATH = join('.findings', 'ledger.jsonl')
+
+const FINDING_SEVERITIES: readonly FindingView['severity'][] = ['critical', 'high', 'medium', 'low', 'info']
+const FINDING_STATUSES: readonly FindingView['status'][] = [
+  'new', 'confirmed', 'false_positive', 'duplicate', 'fixed', 'wontfix',
+]
+
+/** Project one folded record onto the wire view, defaulting only what the writer allows to be absent. */
+function findingView(record: Record<string, unknown>): FindingView {
+  const severity = typeof record.severity === 'string' ? record.severity : ''
+  const status = typeof record.status === 'string' ? record.status : ''
+  const severityKnown = (FINDING_SEVERITIES as readonly string[]).includes(severity)
+  const statusKnown = (FINDING_STATUSES as readonly string[]).includes(status)
+  return {
+    id: String(record.id),
+    title: typeof record.title === 'string' ? record.title : '',
+    severity: severityKnown ? severity as FindingView['severity'] : 'info',
+    status: statusKnown ? status as FindingView['status'] : 'new',
+    target: typeof record.target === 'string' ? record.target : '',
+    class: typeof record.class === 'string' ? record.class : null,
+    createdBy: typeof record.createdBy === 'string' ? record.createdBy : null,
+    lastActivity: typeof record.ts === 'string' ? record.ts : '',
+    verified: record.verified === true,
+  }
+}
+
+/**
+ * Fold the append-only findings ledger. Each line is one record; `add` seeds an
+ * id and `update` merges onto it, so the newest write wins exactly as the
+ * writer intends. A corrupt line fails loud instead of silently dropping a
+ * finding from the rendered list.
+ * @param text - whole ledger file content.
+ * @returns one view per finding id, in ledger insertion order.
+ */
+function foldFindingsLedger(text: string): FindingView[] {
+  const byId = new Map<string, Record<string, unknown>>()
+  const lines = text.split('\n')
+  for (const [index, raw] of lines.entries()) {
+    const trimmed = raw.trim()
+    if (trimmed === '') continue
+    let record: Record<string, unknown>
+    try {
+      record = JSON.parse(trimmed) as Record<string, unknown>
+    } catch {
+      throw new Error(`findings ledger line ${index + 1} is not valid JSON`)
+    }
+    const id = typeof record.id === 'string' ? record.id : undefined
+    if (id === undefined) throw new Error(`findings ledger line ${index + 1} has no id`)
+    byId.set(id, { ...byId.get(id), ...record })
+  }
+  return [...byId.values()].map(findingView)
 }
 
 /**
@@ -1936,6 +1991,47 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
   }
 
   return {
+    findings: {
+      // The ledger is bounded to one path derived from the session header, so
+      // the browser can read findings without a filesystem parameter to abuse.
+      // A session that never recorded a finding has no file: that is an empty
+      // list, not an error.
+      async list(request) {
+        const { sessionId } = request.payload
+        const session = ctx.sessions.get(sessionId)
+        if (session === undefined) {
+          return err(request, {
+            code: 'session-not-found',
+            message: `session "${sessionId}" not found (not attached)`,
+            details: { sessionId },
+          })
+        }
+        const cwd = session.header.cwd
+        if (cwd === undefined) {
+          return err(request, { code: 'internal', message: `session "${sessionId}" has no project cwd`, details: {} })
+        }
+        let text: string
+        try {
+          text = await readFile(join(cwd, FINDINGS_LEDGER_PATH), 'utf8')
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code === 'ENOENT') return ok(request, { findings: [] })
+          return err(request, {
+            code: 'internal',
+            message: `findings ledger is unreadable: ${error instanceof Error ? error.message : String(error)}`,
+            details: {},
+          })
+        }
+        try {
+          return ok(request, { findings: foldFindingsLedger(text) })
+        } catch (error) {
+          return err(request, {
+            code: 'internal',
+            message: error instanceof Error ? error.message : String(error),
+            details: {},
+          })
+        }
+      },
+    },
     sessions: {
       // Attached sessions summarize from memory; persisted-but-unattached (cold)
       // sessions merge in from the persistence store so history survives restarts.

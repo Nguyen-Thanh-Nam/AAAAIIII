@@ -1,26 +1,25 @@
-import { PentestLogo } from '@pentest-harness/dsh-client-ui-primitives'
 import type { HeroBrandMarkOwnerProps } from '@pentest-harness/dsh-client-ui-conversation/client'
 import type { SidebarBrandMarkOwnerProps } from '@pentest-harness/dsh-client-ui-sidebar/client'
 
 type OfficialBrandMarkProps = HeroBrandMarkOwnerProps & SidebarBrandMarkOwnerProps
 
 /**
- * Render the official mark with the presentation requested by its host surface.
- * @param props - Host-supplied mark presentation.
- * @returns the pentest logo mark.
+ * Occupy the official mark slot without drawing artwork.
+ * The slots stay occupied so hosts keep their layout and never fall back to the
+ * generic whale; both brand surfaces render no logo.
+ * @param _props - Host-supplied mark presentation, accepted for slot conformance.
+ * @returns nothing.
  */
-export function OfficialBrandMark({ size, className }: OfficialBrandMarkProps) {
-  return <PentestLogo size={size} className={className} />
+export function OfficialBrandMark(_props: OfficialBrandMarkProps) {
+  return null
 }
 
 /**
- * Render the official name artwork without its independently slotted mark.
- * The product banner (harness.jpg) carries the full "Pentest Harness"
- * wordmark at 2:1, so the name slot renders the banner at a prominent
- * lockup size instead of drawn type.
- * @returns the banner image sized to the sidebar brand-name row.
+ * Occupy the official name slot without drawing artwork.
+ * No wordmark image is shipped, so the sidebar brand row stays empty instead of
+ * showing the placeholder artwork or the text fallback.
+ * @returns nothing.
  */
 export function OfficialBrandName() {
-  return <PentestLogo banner size={40} />
+  return null
 }
-
