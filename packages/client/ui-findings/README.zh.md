@@ -2,11 +2,11 @@
 
 [English](README.md) | 中文
 
-Web 端 findings 视图：向 `conversation.view` 贡献 Issues 标签页，把该会话的 findings ledger 渲染成看板——统计卡片、严重级别筛选胶囊、搜索框、状态/类型/排序下拉、一张可按资产分组的处置表格，以及 CSV 导出。
+Web 端 findings 视图：向 `conversation.view` 贡献 Issues 标签页，把当前任务所属文件夹的 findings 渲染成看板——统计卡片、文件夹/任务范围切换、严重级别筛选胶囊、搜索框、状态/类型/排序下拉、一张可按资产分组的处置表格，以及 CSV 导出。
 
 数据来自 Host 的 `findings.list` 域：它折叠会话工作目录下的 `.findings/ledger.jsonl`，按 finding id 返回一条 `FindingView`（[`dsh-host-apiproxy`](../../host/apiproxy/README.zh.md)）。因此本包不持有自己的 ledger，也从不直接访问文件系统：host 看到什么，这里就渲染什么，缺失被渲染为空状态而不是错误。
 
-行选择按页与每页条数维护，所有与选择相关的操作（导出、复制 id）都基于该选择，因此筛选后的视图导出的正是操作者当前看到的内容。按资产分组会插入一行表头，携带资产字符串与其 finding 数量；两种分组下同一行由同一个渲染函数产出，因此内容一致。
+行选择按页与每页条数维护、以「文件夹 + id」为键，所有与选择相关的操作（导出、复制 id）都基于该选择，因此筛选后的视图导出的正是操作者当前看到的内容；CSV 同样带有文件夹列。按资产分组会插入一行表头，携带资产字符串与其 finding 数量；两种分组下同一行由同一个渲染函数产出，因此内容一致。
 
 所有颜色都取自 `--dsw-alias-*` 与 `--dsw-static-*` 令牌，浅色与深色主题都能正常渲染；文案走本包自己的 `issues` 语言命名空间。
 

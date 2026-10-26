@@ -2890,19 +2890,28 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
       list: (request) => {
         const missing = requireSession(request)
         if (missing !== undefined) return missing
+        // Two rows in the folder and one in a nested engagement, so the folder
+        // scope has something to distinguish from the task scope.
+        const all = [
+          {
+            id: 'F-fixture1', folder: '', title: 'fixture 漏洞样本（已复现）', severity: 'medium' as const, status: 'confirmed' as const,
+            target: 'https://fixture.example.com/api', class: 'cors', createdBy: 'fixture',
+            lastActivity: new Date().toISOString(), verified: true,
+          },
+          {
+            id: 'F-fixture2', folder: '', title: 'fixture 漏洞样本（待确认）', severity: 'low' as const, status: 'new' as const,
+            target: 'https://fixture.example.com/health', class: 'info-disclosure', createdBy: 'fixture',
+            lastActivity: new Date().toISOString(), verified: false,
+          },
+          {
+            id: 'F-fixture3', folder: 'engagements/fixture', title: 'fixture 嵌套目录漏洞样本', severity: 'high' as const, status: 'confirmed' as const,
+            target: 'https://fixture.example.com/admin', class: 'auth-bypass', createdBy: 'fixture',
+            lastActivity: new Date().toISOString(), verified: true,
+          },
+        ]
         return ok(request, {
-          findings: [
-            {
-              id: 'F-fixture1', title: 'fixture 漏洞样本（已复现）', severity: 'medium', status: 'confirmed',
-              target: 'https://fixture.example.com/api', class: 'cors', createdBy: 'fixture',
-              lastActivity: new Date().toISOString(), verified: true,
-            },
-            {
-              id: 'F-fixture2', title: 'fixture 漏洞样本（待确认）', severity: 'low', status: 'new',
-              target: 'https://fixture.example.com/health', class: 'info-disclosure', createdBy: 'fixture',
-              lastActivity: new Date().toISOString(), verified: false,
-            },
-          ],
+          findings: request.payload.scope === 'session' ? all.filter(row => row.folder === '') : all,
+          scope: { kind: 'workspace' as const, label: 'fixture', folders: ['', 'engagements/fixture'] },
         })
       },
     },

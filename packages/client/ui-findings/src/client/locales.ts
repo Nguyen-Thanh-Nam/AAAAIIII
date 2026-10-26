@@ -6,6 +6,12 @@ export type IssuesKey =
   | 'view.issues'
   | 'issues.title'
   | 'issues.count'
+  | 'issues.scope.label'
+  | 'issues.scope.folder'
+  | 'issues.scope.task'
+  | 'issues.group.label'
+  | 'issues.subtitle.workspace'
+  | 'issues.subtitle.session'
   | 'issues.loading'
   | 'issues.empty'
   | 'issues.error'
@@ -63,11 +69,17 @@ declare module '@pentest-harness/dsh-client-ui-slots' {
 }
 
 export const zh: Record<IssuesKey, string> = {
-  'view.issues': '问题',
-  'issues.title': '问题',
+  'view.issues': '漏洞',
+  'issues.title': '漏洞',
   'issues.count': '{n} 个问题',
+  'issues.scope.label': '范围',
+  'issues.scope.folder': '文件夹',
+  'issues.scope.task': '任务',
+  'issues.group.label': '分组',
+  'issues.subtitle.workspace': '「{label}」文件夹中的漏洞',
+  'issues.subtitle.session': '本任务的漏洞',
   'issues.loading': '正在读取问题清单…',
-  'issues.empty': '本次会话还没有记录问题。运行一次检查后，问题会出现在这里。',
+  'issues.empty': '这里还没有记录问题。运行一次检查后，问题会出现在这里。',
   'issues.error': '读取问题清单失败：{message}',
   'issues.search': '搜索标题、目标…',
   'issues.filter.all': '全部',
@@ -117,11 +129,17 @@ export const zh: Record<IssuesKey, string> = {
 }
 
 export const en: Record<IssuesKey, string> = {
-  'view.issues': 'Issues',
+  'view.issues': 'Findings',
   'issues.title': 'Findings',
   'issues.count': '{n} issues',
+  'issues.scope.label': 'Scope',
+  'issues.scope.folder': 'Folder',
+  'issues.scope.task': 'Task',
+  'issues.group.label': 'Group',
+  'issues.subtitle.workspace': 'Vulnerabilities in “{label}”',
+  'issues.subtitle.session': 'Vulnerabilities in this task',
   'issues.loading': 'Loading findings…',
-  'issues.empty': 'No findings recorded for this session yet. Run a check and they appear here.',
+  'issues.empty': 'No findings recorded here yet. Run a check and they appear here.',
   'issues.error': 'Could not read the findings ledger: {message}',
   'issues.search': 'Search title, target…',
   'issues.filter.all': 'All issues',

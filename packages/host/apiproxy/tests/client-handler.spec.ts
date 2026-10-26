@@ -90,7 +90,7 @@ function scriptedApi(overrides: {
       archiveSession: r => ok(r, { archivedSessionIds: [r.payload.sessionId] }),
     },
     skills: { list: r => ok(r, { skills: [] }), ...overrides.skills },
-    findings: { list: r => ok(r, { findings: [] }) },
+    findings: { list: r => ok(r, { findings: [], scope: { kind: 'session' as const, label: 't', folders: [] } }) },
     agentPresets: {
       list: r => ok(r, { presets: [], authorable: false, hasDocument: false }),
       select: r => ok(r, { agentPreset: r.payload.agentPreset }),

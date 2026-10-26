@@ -225,7 +225,7 @@ function fakeApi(overrides: Partial<{ muxFrames: MuxFrame[]; hostFrames: HostFra
     },
     findings: {
       async list(request) {
-        return { rpcId: request.rpcId, result: { ok: true, value: { findings: [] } } }
+        return { rpcId: request.rpcId, result: { ok: true, value: { findings: [], scope: { kind: 'session' as const, label: 't', folders: [] } } } }
       },
     },
     goals: {

@@ -22,14 +22,21 @@ export const findingViewSchema = z.object({
   createdBy: z.string().nullable(),
   lastActivity: z.string(),
   verified: z.boolean(),
+  folder: z.string(),
 }) satisfies z.ZodType<Wire<FindingView>>
 
-/** findings.list request payload: the session whose ledger is read. */
+/** findings.list request payload: the session read, and which ledgers it covers. */
 export const findingsListRequestSchema = z.object({
   sessionId: sessionIdSchema,
+  scope: z.enum(['session', 'workspace']).optional(),
 }) satisfies z.ZodType<Wire<RequestPayload<'findings.list'>>>
 
-/** findings.list response value: the folded ledger. */
+/** findings.list response value: the folded ledgers plus the scope they came from. */
 export const findingsListValueSchema = z.object({
   findings: z.array(findingViewSchema),
+  scope: z.object({
+    kind: z.enum(['workspace', 'session']),
+    label: z.string(),
+    folders: z.array(z.string()),
+  }),
 }) satisfies z.ZodType<Wire<ResponseValue<'findings.list'>>>

@@ -4,9 +4,9 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { mkdir, readFile, stat } from 'node:fs/promises'
+import { mkdir, readFile, readdir, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join, relative, sep } from 'node:path'
 import { z as zod } from 'zod'
 import type { Context } from '@pentest-harness/cordis'
 import { installModelSelection } from '@pentest-harness/dsh-agent'
@@ -347,6 +347,7 @@ function findingView(record: Record<string, unknown>): FindingView {
     createdBy: typeof record.createdBy === 'string' ? record.createdBy : null,
     lastActivity: typeof record.ts === 'string' ? record.ts : '',
     verified: record.verified === true,
+    folder: typeof record.folder === 'string' ? record.folder : '',
   }
 }
 
@@ -375,6 +376,52 @@ function foldFindingsLedger(text: string): FindingView[] {
     byId.set(id, { ...byId.get(id), ...record })
   }
   return [...byId.values()].map(findingView)
+}
+
+/**
+ * Directories a ledger search never descends into: build output, dependency
+ * trees, and harness-owned state that a project only nests by accident.
+ */
+const FINDINGS_SKIP_DIRS = new Set([
+  'node_modules', 'vendor', 'dist', 'build', 'out', 'lib', 'coverage',
+  '.cache', '.pnpm-store', '.next', '.sessions', '.storages', '.dsh-build', 'venv',
+])
+
+/** How far below the scope root a ledger search walks. */
+const FINDINGS_MAX_DEPTH = 3
+
+/** How many directories one scoped read may inspect, bounding an accidental broad root. */
+const FINDINGS_MAX_DIRS = 400
+
+/**
+ * Find every findings ledger at or below one scope root.
+ *
+ * Depth and directory budgets keep a read bounded when the scope root is a home
+ * directory or a very large checkout; a directory the process cannot list is
+ * skipped rather than failing the whole read, because one unreadable subtree
+ * must not hide the findings recorded beside it.
+ * @param root - absolute scope root.
+ * @returns each ledger file with its folder relative to the root ('' at the root).
+ */
+async function collectFindingLedgers(root: string): Promise<{ file: string; folder: string }[]> {
+  const found: { file: string; folder: string }[] = []
+  const queue: { dir: string; depth: number }[] = [{ dir: root, depth: 0 }]
+  let inspected = 0
+  while (queue.length > 0 && inspected < FINDINGS_MAX_DIRS) {
+    const next = queue.shift() as { dir: string; depth: number }
+    inspected += 1
+    const file = join(next.dir, FINDINGS_LEDGER_PATH)
+    if (await stat(file).then(info => info.isFile()).catch(() => false)) {
+      found.push({ file, folder: relative(root, next.dir).split(sep).join('/') })
+    }
+    if (next.depth >= FINDINGS_MAX_DEPTH) continue
+    const entries = await readdir(next.dir, { withFileTypes: true }).catch(() => [])
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name.startsWith('.') || FINDINGS_SKIP_DIRS.has(entry.name)) continue
+      queue.push({ dir: join(next.dir, entry.name), depth: next.depth + 1 })
+    }
+  }
+  return found
 }
 
 /**
@@ -1997,7 +2044,7 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
       // A session that never recorded a finding has no file: that is an empty
       // list, not an error.
       async list(request) {
-        const { sessionId } = request.payload
+        const { sessionId, scope } = request.payload
         const session = ctx.sessions.get(sessionId)
         if (session === undefined) {
           return err(request, {
@@ -2010,26 +2057,39 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
         if (cwd === undefined) {
           return err(request, { code: 'internal', message: `session "${sessionId}" has no project cwd`, details: {} })
         }
-        let text: string
+        // A session that belongs to a workspace reads the folder that workspace
+        // owns, so opening one folder never shows a sibling folder's findings.
+        const workspace = ctx.workspaceRegistry.list()
+          .find(candidate => candidate.sessionIds.includes(sessionId))
+        const scoped = scope !== 'session' && workspace !== undefined
+        const root = scoped ? workspace.path : cwd
+        const label = scoped ? workspace.title : basename(cwd)
+        const findings: FindingView[] = []
+        const folders: string[] = []
+        // The session scope stays one bounded file: its own cwd's ledger, with
+        // no search below it, so narrowing never widens what can be read.
+        const ledgers = scoped
+          ? await collectFindingLedgers(root)
+          : [{ file: join(cwd, FINDINGS_LEDGER_PATH), folder: '' }]
         try {
-          text = await readFile(join(cwd, FINDINGS_LEDGER_PATH), 'utf8')
+          for (const ledger of ledgers) {
+            const text = await readFile(ledger.file, 'utf8')
+            for (const finding of foldFindingsLedger(text)) {
+              findings.push({ ...finding, folder: ledger.folder })
+            }
+            folders.push(ledger.folder)
+          }
         } catch (error) {
-          if ((error as NodeJS.ErrnoException).code === 'ENOENT') return ok(request, { findings: [] })
           return err(request, {
             code: 'internal',
             message: `findings ledger is unreadable: ${error instanceof Error ? error.message : String(error)}`,
             details: {},
           })
         }
-        try {
-          return ok(request, { findings: foldFindingsLedger(text) })
-        } catch (error) {
-          return err(request, {
-            code: 'internal',
-            message: error instanceof Error ? error.message : String(error),
-            details: {},
-          })
-        }
+        return ok(request, {
+          findings,
+          scope: { kind: scoped ? 'workspace' : 'session', label, folders },
+        })
       },
     },
     sessions: {

@@ -1,29 +1,51 @@
 /**
- * Issues tab: the session's findings ledger rendered as the triage dashboard —
- * stat cards, filter bar, and one table of findings.
+ * Issues tab: the findings of the folder this task belongs to, rendered as the
+ * triage dashboard — stat cards, filter bar, and one table of findings.
  *
  * The view owns no findings of its own — it asks the host for the folded
- * ledger through the injected `load` callback (the browser never names a
- * path) and renders what the ledger writer recorded. Filters, selection,
- * grouping and paging are view state; nothing here mutates a finding.
+ * ledgers through the injected `load` callback (the browser never names a
+ * path) and renders what the ledger writer recorded. The scope toggle picks
+ * between the whole folder and this task alone; that is the one request
+ * parameter, and the host decides which files each scope may read. Filters,
+ * selection, grouping and paging are view state; nothing here mutates a
+ * finding.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type React from 'react'
 import type { PropsLocale, PropsRuntime } from '@pentest-harness/dsh-client-ui-slots'
-import type { FindingSeverity, FindingStatus, FindingView, SessionId } from '@pentest-harness/dsh-api-remotes/client'
+import type { FindingsScope, FindingSeverity, FindingStatus, FindingView, SessionId } from '@pentest-harness/dsh-api-remotes/client'
 import { NS } from './locales.ts'
 import css from './IssuesView.module.css'
+
+/** Which ledgers one read covers: the task's folder, or the task alone. */
+export type IssuesScope = 'workspace' | 'session'
+
+/** One read result: the folded findings and the scope the host resolved. */
+export interface IssuesRead {
+  readonly findings: readonly FindingView[]
+  readonly scope: FindingsScope
+}
 
 /** Owner-injected face: the session address plus its ledger reader. */
 export interface IssuesViewInjected {
   readonly sessionId: SessionId
-  readonly load: (signal: AbortSignal) => Promise<readonly FindingView[]>
+  readonly load: (scope: IssuesScope, signal: AbortSignal) => Promise<IssuesRead>
 }
 
 type IssuesViewProps =
   PropsRuntime<'conversation.view'>
   & PropsLocale<typeof NS>
   & IssuesViewInjected
+
+/**
+ * Stable row identity. The finding id is derived from title and target, so the
+ * same weakness found in two folders shares an id; the folder keeps the rows
+ * distinct for React and for selection.
+ * @param finding - row being rendered.
+ * @returns the id when the row came from the scope root, else `<folder>/<id>`.
+ */
+const rowKey = (finding: FindingView): string =>
+  finding.folder === '' ? finding.id : `${finding.folder}/${finding.id}`
 
 /** Severity order the table sorts by. */
 const SEVERITY_ORDER: readonly FindingSeverity[] = ['critical', 'high', 'medium', 'low', 'info']
@@ -45,6 +67,8 @@ const PAGE_SIZES = [20, 50, 100] as const
 interface LoadState {
   status: 'loading' | 'ready' | 'error'
   findings: readonly FindingView[]
+  /** Scope the host resolved; undefined while loading and on error. */
+  scope?: FindingsScope
   message?: string
 }
 
@@ -131,6 +155,9 @@ function SeverityGlyph(
 
 export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading', findings: [] })
+  // A task belongs to a folder, so the folder is the default answer to "what
+  // did we find here"; the task scope is the narrowing, not the other way round.
+  const [scope, setScope] = useState<IssuesScope>('workspace')
   const [status, setStatus] = useState<FindingStatus | 'all'>('all')
   const [severity, setSeverity] = useState<FindingSeverity | 'all'>('all')
   const [klass, setKlass] = useState<string>('all')
@@ -149,10 +176,10 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
   useEffect(() => {
     const abort = new AbortController()
     setState({ status: 'loading', findings: [] })
-    loadRef.current(abort.signal).then(
-      (findings) => {
+    loadRef.current(scope, abort.signal).then(
+      (read) => {
         if (abort.signal.aborted) return
-        setState({ status: 'ready', findings })
+        setState({ status: 'ready', findings: read.findings, scope: read.scope })
       },
       (error: unknown) => {
         if (abort.signal.aborted) return
@@ -164,7 +191,7 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
       },
     )
     return () => { abort.abort() }
-  }, [sessionId])
+  }, [sessionId, scope])
 
   const counts = useMemo(() => {
     const map = new Map<FindingSeverity, number>()
@@ -237,7 +264,7 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
       })
   }, [group, pageRows])
 
-  const allOnPageSelected = pageRows.length > 0 && pageRows.every(row => selected.has(row.id))
+  const allOnPageSelected = pageRows.length > 0 && pageRows.every(row => selected.has(rowKey(row)))
   const toggleRow = (id: string): void => {
     setSelected((previous) => {
       const next = new Set(previous)
@@ -249,25 +276,29 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
   const togglePage = (): void => {
     setSelected((previous) => {
       const next = new Set(previous)
-      if (allOnPageSelected) for (const row of pageRows) next.delete(row.id)
-      else for (const row of pageRows) next.add(row.id)
+      if (allOnPageSelected) for (const row of pageRows) next.delete(rowKey(row))
+      else for (const row of pageRows) next.add(rowKey(row))
       return next
     })
   }
 
-  /** Copy one finding id to the clipboard; the row reports the copy briefly. */
-  const copyId = (id: string): void => {
+  /**
+   * Copy one finding id to the clipboard; the row reports the copy briefly.
+   * @param id - the finding id written to the clipboard.
+   * @param key - the row being reported as copied.
+   */
+  const copyId = (id: string, key: string): void => {
     void navigator.clipboard.writeText(id).then(
-      () => { setCopiedId(id) },
+      () => { setCopiedId(key) },
       () => { setCopiedId(null) },
     )
   }
 
   /** Download exactly what is on screen as CSV — the Export control's only behavior. */
   const download = (): void => {
-    const header = ['id', 'title', 'severity', 'status', 'target', 'class', 'created_by', 'last_activity', 'verified']
+    const header = ['id', 'folder', 'title', 'severity', 'status', 'target', 'class', 'created_by', 'last_activity', 'verified']
     const body = rows.map(finding => [
-      finding.id, finding.title, finding.severity, finding.status, finding.target,
+      finding.id, finding.folder, finding.title, finding.severity, finding.status, finding.target,
       finding.class ?? '', finding.createdBy ?? '', finding.lastActivity, String(finding.verified),
     ].map(csvCell).join(','))
     const blob = new Blob([`${[header.join(','), ...body].join('\n')}\n`], { type: 'text/csv;charset=utf-8' })
@@ -281,12 +312,12 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
 
   /** One table row; shared by both groupings. */
   const renderRow = (finding: FindingView): React.JSX.Element => (
-    <tr key={finding.id} data-selected={selected.has(finding.id) || undefined}>
+    <tr key={rowKey(finding)} data-selected={selected.has(rowKey(finding)) || undefined}>
       <td className={css.checkCell}>
         <input
           type="checkbox"
-          checked={selected.has(finding.id)}
-          onChange={() => { toggleRow(finding.id) }}
+          checked={selected.has(rowKey(finding))}
+          onChange={() => { toggleRow(rowKey(finding)) }}
           aria-label={finding.title}
         />
       </td>
@@ -315,10 +346,10 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
         <button
           type="button"
           className={css.rowAction}
-          onClick={() => { copyId(finding.id) }}
-          title={copiedId === finding.id ? t('issues.copied') : t('issues.copyId')}
+          onClick={() => { copyId(finding.id, rowKey(finding)) }}
+          title={copiedId === rowKey(finding) ? t('issues.copied') : t('issues.copyId')}
         >
-          {copiedId === finding.id ? t('issues.copied') : t('issues.copyId')}
+          {copiedId === rowKey(finding) ? t('issues.copied') : t('issues.copyId')}
         </button>
       </td>
     </tr>
@@ -338,11 +369,37 @@ export function IssuesView({ sessionId, load, t }: IssuesViewProps) {
       <div className={css.pageHead}>
         <div className={css.heading}>
           <h2 className={css.pageTitle}>{t('issues.title')}</h2>
-          <p className={css.subtitle}>{t('issues.subtitle')}</p>
+          <p className={css.subtitle}>
+            {state.scope === undefined
+              ? t('issues.subtitle')
+              : t(state.scope.kind === 'workspace' ? 'issues.subtitle.workspace' : 'issues.subtitle.session', { label: state.scope.label })}
+          </p>
         </div>
         <div className={css.headerActions}>
           {selected.size > 0 && <span className={css.selected}>{t('issues.selected', { n: selected.size })}</span>}
-          <div className={css.tabs} role="tablist">
+          <div className={css.tabs} role="tablist" aria-label={t('issues.scope.label')}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={scope === 'workspace'}
+              className={css.tab}
+              data-active={scope === 'workspace' || undefined}
+              onClick={() => { setScope('workspace'); setPage(1) }}
+            >
+              {t('issues.scope.folder')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={scope === 'session'}
+              className={css.tab}
+              data-active={scope === 'session' || undefined}
+              onClick={() => { setScope('session'); setPage(1) }}
+            >
+              {t('issues.scope.task')}
+            </button>
+          </div>
+          <div className={css.tabs} role="tablist" aria-label={t('issues.group.label')}>
             <button
               type="button"
               role="tab"

@@ -12,6 +12,7 @@ import { ComposerBlockRegistry } from '../src/client/input/blocks.ts'
 import { InputHub } from '../src/client/input/hub.ts'
 import { ConversationController, UnsupportedImageMediaTypeError } from '../src/client/service.ts'
 import { zh } from '../src/client/locales.ts'
+import { ViewBadgeRegistry } from '../src/client/view-badges.ts'
 
 async function bench(readAttachment?: SessionFace['readAttachment']) {
   const runtime = await SlotTestRuntime.create()
@@ -29,6 +30,7 @@ async function bench(readAttachment?: SessionFace['readAttachment']) {
   const fiber = runtime.ctx.plugin(ConversationController, {
     input: hub,
     blocks: new ComposerBlockRegistry(),
+    viewBadges: new ViewBadgeRegistry(),
   })
   await fiber.await()
   const root = runtime.ctx.get('conversation') as ConversationController
@@ -140,6 +142,7 @@ describe('ConversationController', () => {
     await bare.plugin(ConversationController, {
       input: new InputHub(bare, makeTranslate(zh, {})),
       blocks: new ComposerBlockRegistry(),
+      viewBadges: new ViewBadgeRegistry(),
     }).await()
     const orphan = bare.get('conversation') as ConversationController
     await expect(orphan.send('x')).rejects.toThrow(/sessions service unavailable/)

@@ -68,6 +68,10 @@ export function ConversationSessionHeader({
   renderSlot, views, open, t,
 }: ConversationSessionHeaderProps) {
   useSyncExternalStore(views.subscribe, views.version)
+  const counts = useSyncExternalStore(
+    views.counts.subscribe,
+    () => views.counts.snapshot(sessionId),
+  )
   const tabs = views.list()
   const selectedId = useStore(s => s.view)
   const active = resolveActiveView(tabs, selectedId)
@@ -75,6 +79,12 @@ export function ConversationSessionHeader({
   const composerPhase = useSession(s => s.composerPhase)
   const blank = useSession(s => s.blank)
   const hideChrome = blank && composerPhase === 'blank'
+  // Keyed by the view id set rather than the array identity: `list()` builds a
+  // fresh array each render, and asking per render would re-read every ledger.
+  const viewIds = tabs.map(viewTab => viewTab.id).join('\u0000')
+  useEffect(() => {
+    views.counts.request(sessionId, viewIds === '' ? [] : viewIds.split('\u0000'))
+  }, [views, sessionId, viewIds])
 
   return (
     <header
@@ -154,6 +164,9 @@ export function ConversationSessionHeader({
                   onClick={() => { actions.setView(viewTab.id) }}
                 >
                   {viewTab.label}
+                  {counts.get(viewTab.id) === undefined
+                    ? null
+                    : <span className={css.tabBadge}>{counts.get(viewTab.id)}</span>}
                 </button>
               ))}
             </div>

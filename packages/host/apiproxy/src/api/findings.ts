@@ -32,16 +32,38 @@ export interface FindingView {
   lastActivity: string
   /** Whether an operator reproduced the finding by hand. */
   verified: boolean
+  /** Folder the ledger sits in, relative to the scope root; empty at the root itself. */
+  folder: string
+}
+
+/** Which ledgers one read covers, and what the browser calls that scope. */
+export interface FindingsScope {
+  /** `workspace` when the session's folder was resolved, `session` when only its cwd was. */
+  kind: 'workspace' | 'session'
+  /** Display label: the workspace title, else the folder's own name. */
+  label: string
+  /** Folders that contributed findings, relative to the scope root, in discovery order. */
+  folders: string[]
 }
 
 /** Findings-domain unary methods (the map keys findings.* of RpcMethodMap). */
 export interface FindingsApi {
   /**
-   * Lists the folded findings ledger of one session.
+   * Lists the folded findings ledgers a session can see.
+   *
+   * `scope: 'workspace'` (the default) reads every `.findings/ledger.jsonl` at
+   * or below the folder the session's workspace owns, so opening a folder shows
+   * that folder's findings and nothing from a sibling; `scope: 'session'` reads
+   * only the session's own cwd. A workspace the session does not belong to
+   * degrades to the session scope rather than reading a shared ledger.
    *
    * Replay is last-write-wins per id, mirroring the ledger writer, so a status
-   * change appears as the current record rather than a duplicate row. A session
-   * whose cwd has no ledger yields an empty list — absence is not an error.
+   * change appears as the current record rather than a duplicate row. A scope
+   * with no ledger yields an empty list — absence is not an error.
    */
-  list(request: RpcRequest<{ sessionId: SessionId }>): Promise<RpcResponse<{ findings: FindingView[] }>>
+  list(request: RpcRequest<{
+    sessionId: SessionId
+    /** Ledgers to cover; defaults to `workspace`. */
+    scope?: 'session' | 'workspace'
+  }>): Promise<RpcResponse<{ findings: FindingView[]; scope: FindingsScope }>>
 }

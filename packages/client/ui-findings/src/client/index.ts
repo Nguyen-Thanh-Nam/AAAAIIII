@@ -1,20 +1,23 @@
 /**
- * Issues plugin: registers the `conversation.view` tab that renders the
- * session's findings ledger beside Chat / Trajectory / Bounty / Workflow.
+ * Issues plugin: registers the `conversation.view` tab that renders findings
+ * beside Chat / Trajectory / Bounty / Workflow.
  *
- * The ledger is host state, so the view never names a path: registration
- * injects a `load` callback that address the session and calls
- * `findings.list`, letting the host resolve exactly one bounded file.
+ * The ledgers are host state, so the view never names a path: registration
+ * injects a `load` callback that addresses the session and calls
+ * `findings.list`, letting the host resolve the folder that session's
+ * workspace owns. The view passes the scope it wants, so the same session can
+ * show its folder's findings or only its own.
  */
 import type { Context } from '@pentest-harness/cordis'
-import type { ConnectionHandle, FindingView, SessionId } from '@pentest-harness/dsh-api-remotes/client'
+import type {} from '@pentest-harness/dsh-client-ui-conversation/client'
+import type { ConnectionHandle, FindingsScope, FindingView, SessionId } from '@pentest-harness/dsh-api-remotes/client'
 import type {} from '@pentest-harness/dsh-client-locale/client'
 import type {} from '@pentest-harness/dsh-client-ui-conversation/client'
 import { IssuesView, type IssuesViewInjected } from './IssuesView.tsx'
 import { en, NS, zh } from './locales.ts'
 
-/** Required services: the tab ring, session bindings, dictionaries, wire client. */
-export const inject = ['slots', 'sessions', 'locale', 'connection']
+/** Required services: the tab ring, conversation face, session bindings, dictionaries, wire client. */
+export const inject = ['slots', 'conversation', 'sessions', 'locale', 'connection']
 
 /**
  * Client plugin body: register the findings tab into the conversation view.
@@ -24,13 +27,24 @@ export function apply(ctx: Context): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-findings: dictionaries')
   const t = ctx.locale.bind(NS)
 
-  /** Read the folded ledger of one session through the host findings domain. */
-  const loadFindings = async (sessionId: SessionId, signal: AbortSignal): Promise<readonly FindingView[]> => {
+  /** Read the folded ledgers one session can see, in the requested scope. */
+  const loadFindings = async (
+    sessionId: SessionId,
+    scope: 'workspace' | 'session',
+    signal: AbortSignal,
+  ): Promise<{ findings: readonly FindingView[]; scope: FindingsScope }> => {
     const client = ctx.get('connection') as ConnectionHandle
-    const { result } = await client.api.findings.list({ sessionId }, signal)
+    const { result } = await client.api.findings.list({ sessionId, scope }, signal)
     if (!result.ok) throw new Error(result.error.message)
-    return result.value.findings
+    return { findings: result.value.findings, scope: result.value.scope }
   }
+
+  // The tab shows how many findings it holds. The count comes from the same
+  // reader the view uses, so a badge and the table can never disagree.
+  ctx.effect(() => ctx.conversation.viewBadges.register(
+    'issues',
+    async (sessionId, signal) => (await loadFindings(sessionId, 'workspace', signal)).findings.length,
+  ), 'ui-findings: tab count')
 
   ctx.slots.inject('conversation.view', () => ctx.slots.register({
     name: 'conversation.view',
@@ -41,7 +55,7 @@ export function apply(ctx: Context): void {
     label: () => t('view.issues'),
     inject: (sessionId: SessionId): IssuesViewInjected => ({
       sessionId,
-      load: (signal: AbortSignal) => loadFindings(sessionId, signal),
+      load: (scope, signal) => loadFindings(sessionId, scope, signal),
     }),
   }, IssuesView))
 }

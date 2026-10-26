@@ -43,7 +43,7 @@ export type {
   MuxFrame, PromptContentPart, QuestionResponsePayload, QueueAction, RpcError, RpcId, RpcReceipt,
   RpcRequest, RpcResponse, RpcResult, SessionId, SessionModels, SessionSearchItem,
   SessionSummary, SettingsNamespaceView, SettingsPathOpView, SkillEntry, StreamChunk,
-  FindingSeverity, FindingStatus, FindingView,
+  FindingsScope, FindingSeverity, FindingStatus, FindingView,
   SubagentAddress, SubagentCatalog, JobView, ToolCallView, ToolEventView, ToolResultView,
   WorkspaceId, WorkspaceView,
 } from '@pentest-harness/dsh-client-connection/client'

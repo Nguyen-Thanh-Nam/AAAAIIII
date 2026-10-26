@@ -484,6 +484,20 @@ export interface ConversationInjected {
   hooks: { composerBlock: ObservableSnapshot<ComposerBlock | undefined> }
 }
 
+/**
+ * Live counts a view puts beside its tab label. A view registers a provider
+ * through `ctx.conversation.viewBadges`; the ring asks once per session and
+ * renders the answer, so a tab never polls a ledger on its own.
+ */
+export interface ViewCountsShare {
+  /** Subscribe to count changes. */
+  subscribe: (fn: () => void) => () => void
+  /** Counts known for one session, keyed by view id; identity-stable between changes. */
+  snapshot: (sessionId: SessionId) => ReadonlyMap<string, number>
+  /** Ask every registered view for its count once per session. */
+  request: (sessionId: SessionId, viewIds: readonly string[]) => void
+}
+
 /** Business callbacks injected into the strict Session body seat. */
 export interface ConversationSessionInjected {
   /** Views projected from the `conversation.view` slot ledger. */
@@ -491,6 +505,8 @@ export interface ConversationSessionInjected {
     list: () => readonly ViewTab[]
     subscribe: (fn: () => void) => () => void
     version: () => number
+    /** Live per-view counts for the session being shown. */
+    counts: ViewCountsShare
   }
   /** Release historical image URLs when this rendered session scope unmounts. */
   releaseSessionImages: (sessionId: SessionId) => void
@@ -505,6 +521,8 @@ export interface ConversationSessionHeaderInjected {
     list: () => readonly ViewTab[]
     subscribe: (fn: () => void) => () => void
     version: () => number
+    /** Live per-view counts for the session being shown. */
+    counts: ViewCountsShare
   }
   /** Select a real Session through the runtime navigation owner. */
   open: (sessionId: SessionId) => void

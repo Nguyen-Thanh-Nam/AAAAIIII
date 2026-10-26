@@ -215,6 +215,9 @@ function tabsOf(slots: SlotRegistry): ViewTab[] {
 }
 
 /** Mount the strict Session header/body over the ring ledger with outlet-faithful render shares. */
+/** Shared empty count snapshot for the trajectory benches. */
+const NO_COUNTS: ReadonlyMap<string, number> = new Map()
+
 function mount(slots: SlotRegistry, nodes: ConversationSnapshot['nodes'] = NODES) {
   const sessionSnapshot = sessionSnapshots.get(slots) ?? createSnapshotStore(historySnapshot(nodes))
   const useSession = bindSnapshotSelector(sessionSnapshot)
@@ -223,6 +226,12 @@ function mount(slots: SlotRegistry, nodes: ConversationSnapshot['nodes'] = NODES
     list: () => tabsOf(slots),
     subscribe: (fn: () => void) => slots.subscribe('conversation.view', fn),
     version: () => slots.getVersion('conversation.view'),
+    counts: {
+      // Identity-stable snapshot: a fresh Map per call re-renders forever.
+      subscribe: () => () => {},
+      snapshot: (): ReadonlyMap<string, number> => NO_COUNTS,
+      request: () => {},
+    },
   }
   const useInput = bindSnapshotSelector(createSnapshotStore({
     draft: '', imageIds: [], draftRev: 0, phase: 'plain', occurrences: [], queue: [],

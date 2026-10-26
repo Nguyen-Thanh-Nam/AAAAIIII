@@ -103,6 +103,8 @@ function mount(
     composerBlock?: { reason: string }
     /** Mutable view ledger used by registration-order regressions. */
     viewTabs?: ViewTab[]
+    /** Counts a view reports beside its tab label. */
+    viewCounts?: ReadonlyMap<string, number>
   } = {},
 ) {
   const root = sid('root')
@@ -146,10 +148,18 @@ function mount(
     { id: 'chat', label: 'Chat' },
     { id: 'trajectory', label: 'Trajectory' },
   ]
+  // Identity-stable: a snapshot that changes per call makes the store adapter
+  // re-render forever, which is exactly the bug this share must not have.
+  const viewCounts: ReadonlyMap<string, number> = options.viewCounts ?? new Map()
   const views = {
     list: () => viewTabs,
     subscribe: () => () => {},
     version: () => 1,
+    counts: {
+      subscribe: () => () => {},
+      snapshot: (): ReadonlyMap<string, number> => viewCounts,
+      request: () => {},
+    },
   }
   /** Owner share handed to the two composer tool-row seats, per render. */
   const seatOwners: { key: string; owner: unknown }[] = []
@@ -485,6 +495,19 @@ describe('ConversationRoot resident composer', () => {
     act(() => { b.chat.actions.setView('trajectory') })
     expect(b.view.getByTestId('view-trajectory')).toBeTruthy()
     expect(b.view.getByRole('textbox')).toBeTruthy()
+  })
+
+  it('shows a view\'s count beside its label and nothing when the view reports none', () => {
+    const viewTabs: ViewTab[] = [
+      { id: 'chat', label: 'Task' },
+      { id: 'issues', label: 'Findings' },
+    ]
+    const b = mount(conversationSnapshot(), undefined, undefined, {
+      viewTabs,
+      viewCounts: new Map([['issues', 3]]),
+    })
+    expect(b.view.getByRole('tab', { name: /^Findings\s*3$/ })).toBeTruthy()
+    expect(b.view.getByRole('tab', { name: 'Task' })).toBeTruthy()
   })
 
   it('keeps the Chat fallback selected by id when a view is inserted before it', () => {

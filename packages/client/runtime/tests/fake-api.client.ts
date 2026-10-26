@@ -251,7 +251,7 @@ export class FakeApiClient implements IApiClient {
   }
 
   readonly findings: IApiClient['findings'] = {
-    list: (payload: unknown) => this.record('findings.list', payload, Promise.resolve(ok({ findings: [] }))),
+    list: (payload: unknown) => this.record('findings.list', payload, Promise.resolve(ok({ findings: [], scope: { kind: 'session', label: 't', folders: [] } }))),
   }
 
   readonly goals: IApiClient['goals'] = {

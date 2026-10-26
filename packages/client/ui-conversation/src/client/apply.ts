@@ -19,6 +19,7 @@ import type {
 import type { InputNotice } from './input/contract.ts'
 import { createChatStore } from './stores.ts'
 import { ConversationController, UnsupportedImageMediaTypeError } from './service.ts'
+import { ViewBadgeRegistry } from './view-badges.ts'
 import type { IConversation } from './service.ts'
 import { ComposerBlockRegistry } from './input/blocks.ts'
 import type { ComposerBlock } from './input/blocks.ts'
@@ -159,10 +160,18 @@ export function apply(ctx: Context): void {
     }
     return tabs
   }
+  // Counts beside a tab label: a view reports its own; the ring renders what it
+  // was told. One registry instance serves the service face and the share.
+  const viewBadges = new ViewBadgeRegistry()
   const views = {
     list: viewTabs,
     subscribe: (fn: () => void) => slots.subscribe('conversation.view', fn),
     version: () => slots.getVersion('conversation.view'),
+    counts: {
+      subscribe: (fn: () => void) => viewBadges.subscribe(fn),
+      snapshot: (sessionId: SessionId) => viewBadges.snapshot(sessionId),
+      request: (sessionId: SessionId, viewIds: readonly string[]) => { viewBadges.request(sessionId, viewIds) },
+    },
   }
 
   // The per-session input machine registry (SessionInputResolver face; published as
@@ -434,7 +443,7 @@ export function apply(ctx: Context): void {
   // registers itself as `conversation` and lives on its own child fiber.
   // Presentation registrants depend directly on their slot declarations;
   // this service remains only where conversation actions are required.
-  ctx.plugin(ConversationController, { input: inputHub, blocks: composerBlocks })
+  ctx.plugin(ConversationController, { input: inputHub, blocks: composerBlocks, viewBadges })
 
   // The plan strip rides the input dock above the queue rows (same posture).
   ctx.plugin(todoDockEntry)
