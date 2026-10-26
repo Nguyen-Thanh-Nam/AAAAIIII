@@ -36,7 +36,7 @@
     "@pentest-harness/cordis": "workspace:^"
   },
   "dependencies": {
-    "e2b": "2.29.1",
+    "e2b": "2.51.0",
     "@pentest-harness/schemastery": "workspace:^"
   },
   "devDependencies": {
